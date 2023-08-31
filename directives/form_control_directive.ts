@@ -2,34 +2,67 @@ import { AttributePart, noChange } from 'lit';
 import { AsyncDirective, directive, PartInfo } from 'lit/async-directive.js';
 
 import { FormControl } from '../models/form_control';
+import { accessors } from '../utilities/accessors';
 
 
 class FormControlDirective extends AsyncDirective {
 
   private host: HTMLElement;
   private formControl!: FormControl;
+  private accessor: any;
 
   constructor(partInfo: PartInfo) {
     super(partInfo);
 
     this.host = (partInfo as AttributePart).element;
+
+    this.onInput = this.onInput.bind(this);
+    this.modelToView = this.modelToView.bind(this);
   }
 
-  render(formControl: FormControl, name: string) {
+  protected reconnected(): void {
+    this.host.addEventListener('input', this.onInput);
+  }
+
+  protected disconnected(): void {
+    this.host.removeEventListener('input', this.onInput);
+  }
+
+  private getAccessor(): any | null {
+    for (const [selector, accessor] of Object.entries(accessors)) {
+      if (this.host.matches(selector)) {
+        return accessor;
+      }
+    }
+    return null;
+  }
+
+  private onInput(event: Event): void {
+    this.viewToModel();
+  }
+
+  private modelToView(value: any): void {
+    this.accessor.modelToView(this.host, value);
+  }
+
+  private viewToModel(): void {
+    this.accessor.viewToModel(this.host, this.formControl);
+  }
+
+  public render(formControl: FormControl, name: string) {
     if (!this.formControl) {
-      console.log('INIT:', name, 'TYPE:', this.host.tagName);
-
       this.formControl = formControl;
-      this.formControl.modelToView = (value: any) => {
-        (this.host as HTMLInputElement).value = value;
-      };
+      this.accessor = this.getAccessor();
 
+      if (this.accessor === null) {
+        // TODO - Throw a valid accessor error
+        throw new Error('Accessor error');
+      }
+
+      this.reconnected();
+
+      this.formControl.modelToView = this.modelToView;
       this.formControl.setValue(this.formControl.value);
-
-      this.host.addEventListener('input', (event: Event) => {
-        const target = event.target as HTMLInputElement;
-        this.formControl.setValue(target.value);
-      });
     }
 
     return noChange;
@@ -38,4 +71,4 @@ class FormControlDirective extends AsyncDirective {
 }
 
 
-export const formControl = directive(FormControlDirective)
+export const formControl = directive(FormControlDirective);
