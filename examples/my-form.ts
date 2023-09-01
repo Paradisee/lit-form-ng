@@ -13,15 +13,16 @@ import { Validators } from '../validators';
  *
  * TODO:
  *  rawValue()
- *  reset()
- *  enable()
- *  disable()
  *  validators
  *
  * To implement:
  *  onBlur()
  *  dirty
  *  touched
+ *
+ * Think about:
+ *  What should happen if a form is disabled and the value changes?
+ *  Should it change the view value or no?
  */
 
 
@@ -39,7 +40,7 @@ export class MyForm extends LitElement {
   private form: FormGroup = new FormGroup(this, {
     nome: new FormControl(this, 'Carlo', [ Validators.required ]),
     cognome: new FormControl(this, 'Beccarini', [ Validators.required ]),
-    birthDate: new FormControl(this, '', [ Validators.required ]),
+    birthDate: new FormControl(this, 'Date', [ Validators.required ]),
     gender: new FormControl(this, null, [ Validators.required ]),
   });
 
@@ -74,15 +75,18 @@ export class MyForm extends LitElement {
   }
 
   private resetFormGroup(): void {
-    this.form.reset();
+    this.form.reset({
+      nome: 'Carlo Reset',
+      cognome: 'Beccarini Reset',
+    });
   }
 
   private disableFormGroup(): void {
-
+    this.form.disable();
   }
 
   private enableFormGroup(): void {
-
+    this.form.enable();
   }
 
   protected render(): TemplateResult {

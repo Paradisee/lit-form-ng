@@ -33,6 +33,10 @@ export class FormControl<T = any> extends AbstractControl implements ReactiveCon
     this.setValue(value, options);
   }
 
+  override _forEachChild(): Array<AbstractControl> {
+    return [ this ];
+  }
+
   _runValidators(): ValidationErrors | null {
     let errors: ValidationErrors = {};
     for (const validatorFn of this.validators) {

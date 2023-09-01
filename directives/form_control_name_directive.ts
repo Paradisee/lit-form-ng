@@ -23,6 +23,10 @@ class FormControlNameDirective extends AsyncDirective {
 
   protected reconnected(): void {
     this.host.addEventListener('input', this.onInput);
+
+    this.formControl.disabledChanges.subscribe((value: boolean) => {
+      (this.host as any).disabled = value;
+    });
   }
 
   protected disconnected(): void {

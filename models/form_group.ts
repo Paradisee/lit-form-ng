@@ -50,6 +50,10 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     });
   }
 
+  override _forEachChild(): Array<AbstractControl> {
+    return Object.values(this.controls);
+  }
+
   // TODO
   _runValidators(): ValidationErrors | null {
     return null;
