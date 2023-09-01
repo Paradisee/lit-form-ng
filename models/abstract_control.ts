@@ -1,4 +1,4 @@
-import { ReactiveControllerHost } from 'lit';
+import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Subject } from 'rxjs';
 
 import { ValidationErrors } from '../validators';
@@ -12,7 +12,7 @@ export enum FormControlStatus {
 }
 
 
-export abstract class AbstractControl<TValue = any, TRawValue extends TValue = TValue> {
+export abstract class AbstractControl<TValue = any, TRawValue extends TValue = TValue> implements ReactiveController {
 
   private _value!: TValue;
 
@@ -49,8 +49,9 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     return this.status === FormControlStatus.DISABLED;
   }
 
-  constructor() {
-
+  constructor(host: ReactiveControllerHost) {
+    this.host = host;
+    this.host.addController(this);
   }
 
   /**

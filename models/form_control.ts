@@ -1,22 +1,19 @@
-import { ReactiveController, ReactiveControllerHost } from 'lit';
+import { ReactiveControllerHost } from 'lit';
 
 import { ValidationErrors } from '../validators';
 import { AbstractControl } from './abstract_control';
 
 
-export class FormControl<T = any> extends AbstractControl implements ReactiveController {
+export class FormControl<T = any> extends AbstractControl {
 
   validators: Array<Function> = [];
 
   constructor(host: ReactiveControllerHost, value: T, validators: Array<Function> = []) {
-    super();
+    super(host);
 
-    this.host = host;
     this.value = value;
     this.defaultValue = value;
     this.validators = validators;
-
-    host.addController(this);
   }
 
   /**

@@ -1,11 +1,11 @@
-import { ReactiveController, ReactiveControllerHost } from 'lit';
+import { ReactiveControllerHost } from 'lit';
 
 import { ValidationErrors } from '../validators';
 import { AbstractControl } from './abstract_control';
 import { FormControl } from './form_control';
 
 
-export class FormGroup<T extends Record<string, FormControl> = any> extends AbstractControl implements ReactiveController {
+export class FormGroup<T extends Record<string, FormControl> = any> extends AbstractControl {
 
   controls: T;
 
@@ -20,12 +20,9 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
   }
 
   constructor(host: ReactiveControllerHost, controls: T) {
-    super();
+    super(host);
 
-    this.host = host;
     this.controls = controls;
-
-    host.addController(this);
   }
 
   /**
