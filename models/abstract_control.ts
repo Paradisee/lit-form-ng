@@ -53,12 +53,24 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   }
 
+  /**
+   * Sets the value of the control. Abstract method (implemented in sub-classes).
+   */
   abstract setValue(value: TRawValue, options?: Object): void;
 
+  /**
+   * Patches the value of the control. Abstract method (implemented in sub-classes).
+   */
   abstract patchValue(value: TValue, options?: Object): void;
 
+  /**
+   * Resets the control. Abstract method (implemented in sub-classes).
+   */
   abstract reset(value?: TValue, options?: Object): void;
 
+  /**
+   * Returns an array of controls. Abstract method (implemented in sub-classes).
+   */
   abstract _forEachChild(): Array<AbstractControl>;
 
   hostConnected?(): void;
