@@ -49,7 +49,7 @@ class FormControlDirective extends AsyncDirective {
     this.accessor.viewToModel(this.host, this.formControl);
   }
 
-  public render(formControl: FormControl, name: string) {
+  public render(formControl: FormControl) {
     if (!this.formControl) {
       this.formControl = formControl;
       this.accessor = this.getAccessor();

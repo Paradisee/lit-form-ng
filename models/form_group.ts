@@ -1,66 +1,57 @@
-import { AbstractControl, FormControlStatus } from './abstract_control';
+import { ReactiveController, ReactiveControllerHost } from 'lit';
+
+import { ValidationErrors } from '../validators';
+import { AbstractControl } from './abstract_control';
 import { FormControl } from './form_control';
 
 
-export class FormGroup extends AbstractControl {
+export class FormGroup<T extends Record<string, FormControl> = any> extends AbstractControl implements ReactiveController {
 
-  controls: { [key: string]: FormControl } = {};
-  modelToView!: Function;
+  controls: T;
 
-  constructor(controls: { [key: string]: FormControl }) {
+  get value(): Partial<T> {
+    return Object.keys(this.controls).reduce((acc, key) => {
+      if (this.controls[key]?.disabled) return acc;
+      return {
+        ...acc,
+        [key]: this.controls[key].value,
+      }
+    }, {});
+  }
+
+  constructor(host: ReactiveControllerHost, controls: T) {
     super();
 
+    this.host = host;
     this.controls = controls;
+
+    host.addController(this);
   }
 
-  get(name: string): FormControl {
-    return this.controls[name] || null;
+  get<K extends keyof T>(key: K): FormControl<T[K]> | null {
+    return this.controls[key] || null;
   }
 
-  getValue(): { [key: string]: any } {
-    const controls: { [key: string]: any } = {};
+  // TODO
+  // Allow the setValue method only if the passed values are effectively keys (controls)
+  override setValue(value: T, options: { emitValue: boolean } = { emitValue: true }): void {
 
-    Object.entries(this.controls).map(([key, value]) => {
-      controls[key] = (value as FormControl).value;
-    });
-
-    return controls;
   }
 
-  override setValue(value: any, options: { emitValue?: boolean } = { emitValue: true }) {
-    // TODO - Override values of the controls only if the user have passed the same keys
-    this.value = value;
-    this.validate();
-
-    if (options.emitValue) {
-      this.valueChanges.next(value);
-      this.modelToView(value);
-    }
-  }
-
-  override patchValue(value: { [key: string]: any }): void {
-    Object.keys(value).forEach((name: string) => {
-      const control: FormControl = this.controls[name];
-
-      if (control) {
-        control.patchValue(value[name]);
-      }
+  override patchValue(value: Partial<Record<keyof T, any>>, options: { emitValue: boolean } = { emitValue: true }): void {
+    Object.keys(value).forEach((key: keyof T) => {
+      this.controls[key]?.setValue(value[key], options);
     });
   }
 
-  override validate(): boolean {
-    let isValid = true;
+  // TODO
+  override reset(): void {
 
-    for (const control of Object.values(this.controls)) {
-      if (!control.validate()) {
-        (this as {status: FormControlStatus}).status = FormControlStatus.INVALID;
-        isValid = false;
-        console.log(control.errors);
-      }
-    }
+  }
 
-    (this as {status: FormControlStatus}).status = FormControlStatus.VALID;
-    return isValid;
+  // TODO
+  _runValidators(): ValidationErrors | null {
+    return null;
   }
 
 }
