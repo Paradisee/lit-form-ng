@@ -26,6 +26,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   defaultValue!: TValue;
   host!: ReactiveControllerHost;
+  parent: AbstractControl | null = null;
   status!: FormControlStatus;
   valueChanges: Subject<TValue> = new Subject<TValue>();
   statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
@@ -74,6 +75,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    */
   abstract _forEachChild(): Array<AbstractControl>;
 
+  abstract _runValidators(): ValidationErrors | null;
+
   hostConnected?(): void;
 
   hostDisconnected?(): void;
@@ -106,7 +109,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   updateValueAndValidity(): void {
-//    this.errors = this._runValidators();
+    if (this.parent) {
+      this.parent.updateValueAndValidity();
+    }
+
+    this.errors = this._runValidators();
     this.status = this._calculateStatus();
     this.statusChanges.next(this.status);
 

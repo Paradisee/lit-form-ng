@@ -53,6 +53,7 @@ class FormControlNameDirective extends AsyncDirective {
         throw new Error(`Couldn't find a [formControlName]="${name}"`);
       } else {
         this.formControl = formControl;
+        this.formControl.parent = formGroup;
       }
 
       this.accessor = accessors(this.host);

@@ -73,9 +73,12 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     return Object.values(this.controls);
   }
 
-  // TODO
-  _runValidators(): ValidationErrors | null {
-    return null;
+  override _runValidators(): ValidationErrors | null {
+    const errors: ValidationErrors = {};
+    Object.entries(this.controls).forEach(([name, control]) => {
+      errors[name] = control._runValidators() || undefined;
+    });
+    return Object.keys(errors).length ? errors : null;
   }
 
 }

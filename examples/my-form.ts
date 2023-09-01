@@ -14,7 +14,6 @@ import { Validators } from '../validators';
  *
  * TODO:
  *  rawValue()
- *  validators
  *
  * To implement:
  *  onBlur()
