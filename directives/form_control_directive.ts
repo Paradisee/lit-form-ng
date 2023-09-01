@@ -32,15 +32,6 @@ class FormControlDirective extends AsyncDirective {
     this.host.removeEventListener('input', this.onInput);
   }
 
-  private getAccessor(): any | null {
-    for (const [selector, accessor] of Object.entries(accessors)) {
-      if (this.host.matches(selector)) {
-        return accessor;
-      }
-    }
-    return null;
-  }
-
   private onInput(event: Event): void {
     this.viewToModel();
   }
@@ -57,7 +48,7 @@ class FormControlDirective extends AsyncDirective {
     if (!this.formControl) {
       this.formControl = formControl;
 
-      this.accessor = this.getAccessor();
+      this.accessor = accessors(this.host);
 
       if (this.accessor === null) {
         // TODO - Throw a valid accessor error

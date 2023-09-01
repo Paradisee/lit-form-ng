@@ -10,6 +10,7 @@ import { Validators } from '../validators';
 /**
  * Known bugs:
  *  Whenever a setValue() is called it does not check the type
+ *  The input[number] sets the value as string instead of a number in the model at first load
  *
  * TODO:
  *  rawValue()
@@ -38,10 +39,14 @@ interface User {
 export class MyForm extends LitElement {
 
   private form: FormGroup = new FormGroup(this, {
-    nome: new FormControl(this, 'Carlo', [ Validators.required ]),
-    cognome: new FormControl(this, 'Beccarini', [ Validators.required ]),
-    birthDate: new FormControl(this, 'Date', [ Validators.required ]),
-    gender: new FormControl(this, null, [ Validators.required ]),
+    text: new FormControl(this, 'This is an input text', [ Validators.required ]),
+    number: new FormControl(this, '13', [ Validators.required ]),
+    checkbox: new FormControl(this, true, [ Validators.required ]),
+    color: new FormControl(this, '#4911e4', [ Validators.required ]),
+    email: new FormControl(this, 'lit-ng-form@email.it', [ Validators.required, Validators.email ]),
+    password: new FormControl(this, null, [ Validators.required ]),
+    tel: new FormControl(this, '', [ Validators.required ]),
+    textArea: new FormControl(this, 'This is a text area', [ Validators.required ]),
   });
 
   private nameControl: FormControl = new FormControl<string>(this, 'Carlo', [ Validators.required ]);
@@ -69,15 +74,17 @@ export class MyForm extends LitElement {
 
   private patchValueFormGroup(): void {
     this.form.patchValue({
-      nome: 'Carlo Patched',
-      cognome: 'Beccarini Patched',
+      text: 'This input text has been patched',
+      number: 15,
+      checkbox: false,
+      color: '#11e434',
+      email: 'test@test.test',
     });
   }
 
   private resetFormGroup(): void {
     this.form.reset({
-      nome: 'Carlo Reset',
-      cognome: 'Beccarini Reset',
+      nome: 'This input text has been reset with a new value',
     });
   }
 
@@ -119,7 +126,7 @@ export class MyForm extends LitElement {
         Enabled: ${this.nameControl.enabled}<br>
         Valid: ${this.nameControl.valid}<br>
         Invalid: ${this.nameControl.invalid}<br>
-        Errors: ${JSON.stringify(this.nameControl.errors, null, 2)}
+        Errors: <pre>${JSON.stringify(this.nameControl.errors, null, 2)}</pre>
       </div>
     `;
   }
@@ -130,22 +137,49 @@ export class MyForm extends LitElement {
 
       <form>
         <div>
-          <label>Nome:</label>
-          <input type="text" ${formControlName(this.form, 'nome')}>
-          <small>${this.form.get('nome')?.errors?.required ? html`Questo campo è obbligatorio` : html``}</small>
+          <label>Input text:</label>
+          <input type="text" ${formControlName(this.form, 'text')}>
+          <small>${this.form.get('text')?.errors?.required ? html`Required field` : html``}</small>
         </div>
 
         <div>
-          <label>Cognome:</label>
-          <input type="text" ${formControlName(this.form, 'cognome')}>
-          <small>${this.form.get('cognome')?.errors?.required ? html`Questo campo è obbligatorio` : html``}</small>
+          <label>Input number:</label>
+          <input type="number" ${formControlName(this.form, 'number')}>
+          <small>${this.form.get('number')?.errors?.required ? html`Required field` : html``}</small>
         </div>
 
         <div>
-          <label>Data di nascita:</label>
-          <input type="text" ${formControlName(this.form, 'birthDate')}>
-          <small>${this.form.get('birthDate')?.errors?.required ? html`Questo campo è obbligatorio` : html``}</small>
+          <label>Checkbox:</label>
+          <input type="checkbox" ${formControlName(this.form, 'checkbox')}>
+          <small>${this.form.get('checkbox')?.errors?.required ? html`Required field` : html``}</small>
         </div>
+
+        <div>
+          <label>Color:</label>
+          <input type="color" ${formControlName(this.form, 'color')}>
+          <small>${this.form.get('color')?.errors?.required ? html`Required field` : html``}</small>
+        </div>
+
+        <div>
+          <label>Email:</label>
+          <input type="email" ${formControlName(this.form, 'email')}>
+          <small>${this.form.get('email')?.errors?.required ? html`Required field` : html``}</small>
+          <small>${this.form.get('email')?.errors?.email ? html`Invalid email` : html``}</small>
+        </div>
+
+        <div>
+          <label>Password:</label>
+          <input type="password" ${formControlName(this.form, 'password')}>
+          <small>${this.form.get('password')?.errors?.required ? html`Required field` : html``}</small>
+        </div>
+
+        <div>
+          <label>Tel:</label>
+          <input type="tel" ${formControlName(this.form, 'tel')}>
+          <small>${this.form.get('tel')?.errors?.required ? html`Required field` : html``}</small>
+        </div>
+
+        <textarea rows="5" cols="33" ${formControlName(this.form, 'textArea')}></textarea>
 <!--
         <div>
           <label>Genere:</label>
@@ -154,7 +188,7 @@ export class MyForm extends LitElement {
             <option value="female">F</option>
             <option value="other">Other</option>
           </select>
-          <small>${this.form.get('gender')?.errors?.required ? html`Questo campo è obbligatorio` : html``}</small>
+          <small>${this.form.get('gender')?.errors?.required ? html`Required field` : html``}</small>
         </div>
 -->
       </form>
@@ -167,12 +201,12 @@ export class MyForm extends LitElement {
       </div>
 
       <div>
-        Value: ${JSON.stringify(this.form.value, null, 2)}<br>
+        Value: <pre>${JSON.stringify(this.form.value, null, 2)}</pre><br>
         Disbled: ${this.form.disabled}<br>
         Enabled: ${this.form.enabled}<br>
         Valid: ${this.form.valid}<br>
         Invalid: ${this.form.invalid}<br>
-        Errors: ${JSON.stringify(this.form.errors, null, 2)}
+        Errors: <pre>${JSON.stringify(this.form.errors, null, 2)}</pre>
       </div>
     `;
   }
