@@ -8,21 +8,17 @@ import { FormGroup } from '../models/form_group';
 import { Validators } from '../validators';
 
 /**
- * Known bugs:
- *  Whenever a setValue() is called it does not check the type
- *  The input[number] sets the value as string instead of a number in the model at first load
- *
  * TODO:
  *  rawValue()
+ *  type check
+ *  radio
+ *  select
  *
  * To implement:
  *  onBlur()
  *  dirty
  *  touched
  *
- * Think about:
- *  What should happen if a form is disabled and the value changes?
- *  Should it change the view value or no?
  */
 
 
@@ -39,7 +35,7 @@ export class MyForm extends LitElement {
 
   private form: FormGroup = new FormGroup(this, {
     text: new FormControl(this, 'This is an input text', [ Validators.required ]),
-    number: new FormControl(this, '13', [ Validators.required ]),
+    number: new FormControl(this, 13, [ Validators.required ]),
     checkbox: new FormControl(this, true, [ Validators.required ]),
     color: new FormControl(this, '#4911e4', [ Validators.required ]),
     email: new FormControl(this, 'lit-ng-form@email.it', [ Validators.required, Validators.email ]),
@@ -95,6 +91,11 @@ export class MyForm extends LitElement {
     this.form.enable();
   }
 
+  private submitFormGroup(event: Event): void {
+    event.preventDefault();
+    console.log(this.form.value);
+  }
+
   protected render(): TemplateResult {
     return html`
       ${this.renderFormControl()}
@@ -134,7 +135,7 @@ export class MyForm extends LitElement {
     return html`
       <h2>FormGroup</h2>
 
-      <form>
+      <form @submit="${this.submitFormGroup}">
         <div>
           <label>Input text:</label>
           <input type="text" ${formControlName(this.form, 'text')}>
@@ -162,8 +163,8 @@ export class MyForm extends LitElement {
         <div>
           <label>Email:</label>
           <input type="email" ${formControlName(this.form, 'email')}>
-          <small>${this.form.get('email')?.errors?.required ? html`Required field` : html``}</small>
-          <small>${this.form.get('email')?.errors?.email ? html`Invalid email` : html``}</small>
+          <small>${this.form.errors?.email?.required ? html`Required field` : html``}</small>
+          <small>${this.form.errors?.email?.email ? html`Invalid email` : html``}</small>
         </div>
 
         <div>
@@ -190,6 +191,7 @@ export class MyForm extends LitElement {
           <small>${this.form.get('gender')?.errors?.required ? html`Required field` : html``}</small>
         </div>
 -->
+        <button type="submit" ?disabled="${this.form.invalid}">SUBMIT</button>
       </form>
 
       <div>

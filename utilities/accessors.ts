@@ -15,7 +15,7 @@ const inputNumberAccessor = {
     element.value = value.toString();
   },
   viewToModel: (element: HTMLInputElement, formControl: FormControl) => {
-    formControl.setValue(element.valueAsNumber);
+    formControl.setValue(element.valueAsNumber || 0);
   }
 }
 
@@ -56,6 +56,8 @@ export function accessors(element: HTMLElement) {
       case 'range':
         return {};
       case 'time':
+        return {};
+      case 'date':
         return {};
       default:
         return {};
