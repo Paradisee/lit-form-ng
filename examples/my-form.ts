@@ -39,7 +39,7 @@ export class MyForm extends LitElement {
   private form: FormGroup = new FormGroup(this, {
     nome: new FormControl(this, 'Carlo', [ Validators.required ]),
     cognome: new FormControl(this, 'Beccarini', [ Validators.required ]),
-    birthDate: new FormControl(this, null, [ Validators.required ]),
+    birthDate: new FormControl(this, '', [ Validators.required ]),
     gender: new FormControl(this, null, [ Validators.required ]),
   });
 
@@ -74,7 +74,7 @@ export class MyForm extends LitElement {
   }
 
   private resetFormGroup(): void {
-
+    this.form.reset();
   }
 
   private disableFormGroup(): void {
@@ -98,7 +98,7 @@ export class MyForm extends LitElement {
 
       <div>
         <label>Name:</label>
-        <input type="number" ${formControl(this.nameControl)}>
+        <input type="text" ${formControl(this.nameControl)}>
         <small>${this.nameControl.errors?.required ? html`Required field` : html``}</small>
       </div>
 

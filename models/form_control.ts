@@ -13,6 +13,7 @@ export class FormControl<T = any> extends AbstractControl implements ReactiveCon
 
     this.host = host;
     this.value = value;
+    this.defaultValue = value;
     this.validators = validators;
 
     host.addController(this);
@@ -28,9 +29,8 @@ export class FormControl<T = any> extends AbstractControl implements ReactiveCon
     this.setValue(value, options);
   }
 
-  // TODO
-  override reset(): void {
-
+  override reset(value: T = this.defaultValue, options: { emitValue: boolean } = { emitValue: true }): void {
+    this.setValue(value, options);
   }
 
   _runValidators(): ValidationErrors | null {

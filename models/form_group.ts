@@ -44,9 +44,10 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     });
   }
 
-  // TODO
-  override reset(): void {
-
+  override reset(value: Partial<Record<keyof T, any>> = {}, options: { emitValue: boolean } = { emitValue: true }): void {
+    Object.entries(this.controls).forEach(([name, control]) => {
+      control.reset(value[name], options);
+    });
   }
 
   // TODO

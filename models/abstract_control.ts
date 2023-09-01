@@ -24,6 +24,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._value = value;
   }
 
+  defaultValue!: TValue;
   host!: ReactiveControllerHost;
   status!: FormControlStatus;
   valueChanges: Subject<TValue> = new Subject<TValue>();
