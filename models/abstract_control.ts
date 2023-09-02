@@ -32,6 +32,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
   disabledChanges: Subject<boolean> = new Subject<boolean>();
   errors: ValidationErrors | null = null;
+  validators: Array<Function> = [];
   modelToView!: Function;
 
   get valid(): boolean {
@@ -128,6 +129,21 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (!options.onlySelf) {
       this.host.requestUpdate();
     }
+  }
+
+  /**
+   * Sets the synchronous validators that are active on this control.
+   * Calling this overwrites any existing synchronous validators.
+   */
+  setValidators(validators: Array<Function> = []): void {
+    this.validators = validators;
+  }
+
+  /**
+   * Add synchronous validators to this control, without affecting other validators.
+   */
+  addValidators(validators: Array<Function> = []): void {
+    this.validators = [...this.validators, ...validators];
   }
 
   private _calculateStatus(): FormControlStatus {

@@ -6,8 +6,6 @@ import { AbstractControl } from './abstract_control';
 
 export class FormControl<T = any> extends AbstractControl {
 
-  validators: Array<Function> = [];
-
   constructor(host: ReactiveControllerHost, value: T, validators: Array<Function> = []) {
     super(host);
 
