@@ -16,16 +16,20 @@ export class FormControl<T = any> extends AbstractControl {
     this.validators = validators;
   }
 
+  override getRawValue(): T {
+    return this.value;
+  }
+
   /**
    * Sets the control's value to the provided value and updates its validity.
    * @param value - The value to set for the control.
    * @param options - Options for setting the control's value (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override setValue(value: T, options: { emitValue: boolean } = { emitValue: true }): void {
+  override setValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     this.value = value;
     options.emitValue && this.valueChanges.next(value);
-    this.updateValueAndValidity();
+    this.updateValueAndValidity(options);
   }
 
   /**
@@ -34,7 +38,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for patching the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: T, options: { emitValue: boolean } = { emitValue: true }): void {
+  override patchValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     this.setValue(value, options);
   }
 
@@ -44,7 +48,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for resetting the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: T = this.defaultValue, options: { emitValue: boolean } = { emitValue: true }): void {
+  override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     this.setValue(value, options);
   }
 
@@ -54,10 +58,11 @@ export class FormControl<T = any> extends AbstractControl {
    * @returns An array containing the control itself.
    */
   override _forEachChild(): Array<AbstractControl> {
-    return [ this ];
+    return [];
   }
 
   _runValidators(): ValidationErrors | null {
+    if (this.disabled) return null;
     let errors: ValidationErrors = {};
     for (const validatorFn of this.validators) {
       const validationError: ValidationErrors | null = validatorFn(this);

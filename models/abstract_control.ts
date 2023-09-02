@@ -55,6 +55,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.host.addController(this);
   }
 
+  abstract getRawValue(): TValue;
+
   /**
    * Sets the value of the control. Abstract method (implemented in sub-classes).
    */
@@ -85,47 +87,52 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   hostUpdated?(): void;
 
-  disable(): void {
+  disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     this.status = FormControlStatus.DISABLED;
-    this.errors = null;
 
     this._forEachChild().forEach((control: AbstractControl) => {
-      control.disabledChanges.next(true);
+      control.disable({ onlySelf: true, emitValue: true });
     });
 
-    this.statusChanges.next(this.status);
-    this.host.requestUpdate();
+    this.disabledChanges.next(true);
+    this.updateValueAndValidity(options);
   }
 
-  enable(): void {
+  enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     this.status = FormControlStatus.VALID;
 
     this._forEachChild().forEach((control: AbstractControl) => {
-      control.disabledChanges.next(false);
+      control.enable({ onlySelf: true, emitValue: true });
     });
 
-    this.updateValueAndValidity();
-    this.host.requestUpdate();
+    this.disabledChanges.next(false);
+    this.updateValueAndValidity(options);
   }
 
-  updateValueAndValidity(): void {
+  updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     if (this.parent) {
-      this.parent.updateValueAndValidity();
+      this.parent.updateValueAndValidity(options);
     }
 
     this.errors = this._runValidators();
     this.status = this._calculateStatus();
-    this.statusChanges.next(this.status);
+
+    if (options.emitValue) {
+      this.statusChanges.next(this.status);
+    }
 
     if (this.modelToView) {
       this.modelToView(this.value);
+    }
+
+    if (!options.onlySelf) {
       this.host.requestUpdate();
     }
   }
 
   private _calculateStatus(): FormControlStatus {
-    if (this.errors) return FormControlStatus.INVALID;
     if (this.disabled) return FormControlStatus.DISABLED;
+    if (this.errors) return FormControlStatus.INVALID;
     return FormControlStatus.VALID;
   }
 

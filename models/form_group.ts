@@ -34,9 +34,18 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     return this.controls[key] || null;
   }
 
+  override getRawValue(): Partial<T> {
+    return Object.keys(this.controls).reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: this.controls[key].getRawValue(),
+      }
+    }, {});
+  }
+
   // TODO
   // Allow the setValue method only if the passed values are effectively keys (controls)
-  override setValue(value: T, options: { emitValue: boolean } = { emitValue: true }): void {
+  override setValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
 
   }
 
@@ -46,7 +55,7 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
    * @param options - Options for patching controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: Partial<Record<keyof T, any>>, options: { emitValue: boolean } = { emitValue: true }): void {
+  override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     Object.keys(value).forEach((key: keyof T) => {
       this.controls[key]?.setValue(value[key], options);
     });
@@ -58,7 +67,7 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
    * @param options - Options for resetting controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: Partial<Record<keyof T, any>> = {}, options: { emitValue: boolean } = { emitValue: true }): void {
+  override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     Object.entries(this.controls).forEach(([name, control]) => {
       control.reset(value[name], options);
     });
