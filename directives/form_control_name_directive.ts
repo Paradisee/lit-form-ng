@@ -47,7 +47,7 @@ class FormControlNameDirective extends AsyncDirective {
 
   public render(formGroup: FormGroup, name: string) {
     if (!this.formControl) {
-      const formControl: FormControl | null= formGroup.get(name);
+      const formControl: FormControl | null = formGroup.get(name);
 
       if (formControl === null) {
         throw new Error(`Couldn't find a [formControlName]="${name}"`);
