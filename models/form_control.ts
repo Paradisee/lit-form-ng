@@ -60,8 +60,8 @@ export class FormControl<T = any> extends AbstractControl {
    * This method is used internally to include the control itself when iterating through child controls.
    * @returns An array containing the control itself.
    */
-  override _forEachChild(): Array<AbstractControl> {
-    return [];
+  override _forEachChild(cb: (control: AbstractControl) => void): void {
+
   }
 
   /** @internal */

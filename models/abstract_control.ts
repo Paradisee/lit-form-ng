@@ -86,7 +86,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   /**
    * Returns an array of controls. Abstract method (implemented in sub-classes).
    */
-  abstract _forEachChild(): Array<AbstractControl>;
+  abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
   abstract _runValidators(): ValidationErrors | null;
 
@@ -101,7 +101,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
-    this._forEachChild().forEach((control: AbstractControl) => {
+    this._forEachChild((control: AbstractControl) => {
       control.disable({ onlySelf: true, emitValue: true });
     });
 
@@ -112,7 +112,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.VALID;
 
-    this._forEachChild().forEach((control: AbstractControl) => {
+    this._forEachChild((control: AbstractControl) => {
       control.enable({ onlySelf: true, emitValue: true });
     });
 
@@ -159,7 +159,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   markAllAsTouched(): void {
     this.markAsTouched({ onlySelf: true });
 
-    this._forEachChild().forEach((control: AbstractControl) => {
+    this._forEachChild((control: AbstractControl) => {
       control.markAllAsTouched();
     });
   }
@@ -175,7 +175,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   markAsUntouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = false;
 
-    this._forEachChild().forEach((control: AbstractControl) => {
+    this._forEachChild((control: AbstractControl) => {
       control.markAsUntouched(options);
     });
 
@@ -195,7 +195,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   markAsPristine(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = true;
 
-    this._forEachChild().forEach((control: AbstractControl) => {
+    this._forEachChild((control: AbstractControl) => {
       control.markAsPristine(options);
     });
 

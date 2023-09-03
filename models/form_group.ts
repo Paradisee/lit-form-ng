@@ -80,12 +80,13 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
   }
 
   /**
+   * @internal
    * Returns an array of child controls within the group.
    * This method is used internally to iterate through the child controls.
    * @returns An array of child controls.
    */
-  override _forEachChild(): Array<AbstractControl> {
-    return Object.values(this.controls);
+  override _forEachChild(cb: (control: AbstractControl) => void): void {
+    Object.values(this.controls).forEach((control: AbstractControl) => cb(control));
   }
 
   override _runValidators(): ValidationErrors | null {
