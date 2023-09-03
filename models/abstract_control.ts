@@ -27,13 +27,13 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   defaultValue!: TValue;
   host!: ReactiveControllerHost;
   parent: AbstractControl | null = null;
-  status!: FormControlStatus;
   valueChanges: Subject<TValue> = new Subject<TValue>();
   statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
   disabledChanges: Subject<boolean> = new Subject<boolean>();
   errors: ValidationErrors | null = null;
   validators: Array<Function> = [];
   modelToView!: Function;
+  readonly status!: FormControlStatus;
   readonly touched: boolean = false;
   readonly pristine: boolean = true;
 
@@ -99,7 +99,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   hostUpdated?(): void;
 
   disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
-    this.status = FormControlStatus.DISABLED;
+    (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
     this._forEachChild().forEach((control: AbstractControl) => {
       control.disable({ onlySelf: true, emitValue: true });
@@ -110,7 +110,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
-    this.status = FormControlStatus.VALID;
+    (this as { status: FormControlStatus }).status = FormControlStatus.VALID;
 
     this._forEachChild().forEach((control: AbstractControl) => {
       control.enable({ onlySelf: true, emitValue: true });
@@ -126,7 +126,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
 
     this.errors = this._runValidators();
-    this.status = this._calculateStatus();
+    (this as { status: FormControlStatus }).status = this._calculateStatus();
 
     if (options.emitValue) {
       this.statusChanges.next(this.status);
