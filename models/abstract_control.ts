@@ -156,6 +156,9 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.validators = [...this.validators, ...validators];
   }
 
+  /**
+   * Marks the control and all its descendant controls as `touched`.
+   */
   markAllAsTouched(): void {
     this.markAsTouched({ onlySelf: true });
 
@@ -164,6 +167,10 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     });
   }
 
+  /**
+   * Marks the control as `touched`. A control is touched by focus and
+   * blur events that do not change the value.
+   */
   markAsTouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = true;
 
@@ -172,6 +179,12 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
   }
 
+  /**
+   * Marks the control as `untouched`.
+   *
+   * If the control has any children, also marks all children as `untouched`
+   * and recalculates the `touched` status of all parent controls.
+   */
   markAsUntouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = false;
 
@@ -184,6 +197,10 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
   }
 
+  /**
+   * Marks the control as `dirty`. A control becomes dirty when
+   * the control's value is changed through the UI.
+   */
   markAsDirty(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = false;
 
@@ -192,6 +209,12 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
   }
 
+  /**
+   * Marks the control as `pristine`.
+   *
+   * If the control has any children, marks all children as `pristine`,
+   * and recalculates the `pristine` status of all parent controls.
+   */
   markAsPristine(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = true;
 
