@@ -12,6 +12,7 @@ export class FormControl<T = any> extends AbstractControl {
     this.value = value;
     this.defaultValue = value;
     this.validators = validators;
+    this.parent = null;
   }
 
   override getRawValue(): T {

@@ -47,7 +47,6 @@ class FormControlDirective extends AsyncDirective {
   public render(formControl: FormControl) {
     if (!this.formControl) {
       this.formControl = formControl;
-      this.formControl.parent = null;
 
       this.accessor = accessors(this.host);
 

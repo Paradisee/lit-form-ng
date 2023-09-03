@@ -23,6 +23,10 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     super(host);
 
     this.controls = controls;
+
+    Object.values(this.controls).forEach((control: AbstractControl) => {
+      control.parent = this;
+    });
   }
 
   /**
