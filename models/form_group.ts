@@ -71,6 +71,8 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     Object.entries(this.controls).forEach(([name, control]) => {
       control.reset(value[name], options);
     });
+    this.markAsPristine();
+    this.markAsUntouched();
   }
 
   /**
@@ -91,6 +93,16 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
       }
     });
     return Object.keys(errors).length ? errors : null;
+  }
+
+  /** @internal */
+  override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
+    for (const control of Object.values(this.controls)) {
+      if (condition(control)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

@@ -27,6 +27,7 @@ export class FormControl<T = any> extends AbstractControl {
   override setValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
     this.value = value;
     options.emitValue && this.valueChanges.next(value);
+    this.markAsDirty();
     this.updateValueAndValidity(options);
   }
 
@@ -47,10 +48,13 @@ export class FormControl<T = any> extends AbstractControl {
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
   override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+    this.markAsPristine();
+    this.markAsUntouched();
     this.setValue(value, options);
   }
 
   /**
+   * @internal
    * Returns an array containing the current control itself.
    * This method is used internally to include the control itself when iterating through child controls.
    * @returns An array containing the control itself.
@@ -59,7 +63,8 @@ export class FormControl<T = any> extends AbstractControl {
     return [];
   }
 
-  _runValidators(): ValidationErrors | null {
+  /** @internal */
+  override _runValidators(): ValidationErrors | null {
     if (this.disabled) return null;
     let errors: ValidationErrors = {};
     for (const validatorFn of this.validators) {
@@ -69,6 +74,11 @@ export class FormControl<T = any> extends AbstractControl {
       }
     }
     return Object.keys(errors).length ? errors : null;
+  }
+
+  /** @internal */
+  override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
+    return false;
   }
 
 }

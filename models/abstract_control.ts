@@ -34,6 +34,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   errors: ValidationErrors | null = null;
   validators: Array<Function> = [];
   modelToView!: Function;
+  readonly touched: boolean = false;
+  readonly pristine: boolean = true;
 
   get valid(): boolean {
     return this.status === FormControlStatus.VALID;
@@ -49,6 +51,14 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   get disabled(): boolean {
     return this.status === FormControlStatus.DISABLED;
+  }
+
+  get untouched(): boolean {
+    return !this.touched;
+  }
+
+  get dirty(): boolean {
+    return !this.pristine;
   }
 
   constructor(host: ReactiveControllerHost) {
@@ -146,10 +156,95 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.validators = [...this.validators, ...validators];
   }
 
+  markAllAsTouched(): void {
+    this.markAsTouched({ onlySelf: true });
+
+    this._forEachChild().forEach((control: AbstractControl) => {
+      control.markAllAsTouched();
+    });
+  }
+
+  markAsTouched(options: { onlySelf?: boolean } = {}): void {
+    (this as { touched: boolean }).touched = true;
+
+    if (this.parent && !options.onlySelf) {
+      this.parent.markAsTouched(options);
+    }
+  }
+
+  markAsUntouched(options: { onlySelf?: boolean } = {}): void {
+    (this as { touched: boolean }).touched = false;
+
+    this._forEachChild().forEach((control: AbstractControl) => {
+      control.markAsUntouched(options);
+    });
+
+    if (this.parent && !options.onlySelf) {
+      this.parent._updateTouched(options);
+    }
+  }
+
+  markAsDirty(options: { onlySelf?: boolean } = {}): void {
+    (this as { pristine: boolean }).pristine = false;
+
+    if (this.parent && !options.onlySelf) {
+      this.parent.markAsDirty(options);
+    }
+  }
+
+  markAsPristine(options: { onlySelf?: boolean } = {}): void {
+    (this as { pristine: boolean }).pristine = true;
+
+    this._forEachChild().forEach((control: AbstractControl) => {
+      control.markAsPristine(options);
+    });
+
+    if (this.parent && !options.onlySelf) {
+      this.parent._updatePristine(options);
+    }
+  }
+
+  // TODO
+  markAsPending(): void {
+
+  }
+
+  /** @internal */
   private _calculateStatus(): FormControlStatus {
     if (this.disabled) return FormControlStatus.DISABLED;
     if (this.errors) return FormControlStatus.INVALID;
     return FormControlStatus.VALID;
+  }
+
+  /** @internal */
+  abstract _anyControls(condition: (c: AbstractControl) => boolean): boolean;
+
+  /** @internal */
+  private _anyControlsDirty(): boolean {
+    return this._anyControls((control: AbstractControl) => control.dirty);
+  }
+
+  /** @internal */
+  private _anyControlsTouched(): boolean {
+    return this._anyControls((control: AbstractControl) => control.touched);
+  }
+
+  /** @internal */
+  private _updateTouched(options: { onlySelf?: boolean } = {}): void {
+    (this as { touched: boolean }).touched = !this._anyControlsTouched();
+
+    if (this.parent && !options.onlySelf) {
+      this.parent._updateTouched(options);
+    }
+  }
+
+  /** @internal */
+  private _updatePristine(options: { onlySelf?: boolean } = {}): void {
+    (this as { pristine: boolean }).pristine = !this._anyControlsDirty();
+
+    if (this.parent && !options.onlySelf) {
+      this.parent._updatePristine(options);
+    }
   }
 
 }
