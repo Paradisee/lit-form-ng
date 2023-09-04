@@ -1,17 +1,23 @@
 import { ReactiveControllerHost } from 'lit';
+import { forkJoin, from, map } from 'rxjs';
 
-import { ValidationErrors } from '../validators';
-import { AbstractControl } from './abstract_control';
+import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
+import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 
 
 export class FormControl<T = any> extends AbstractControl {
 
-  constructor(host: ReactiveControllerHost, value: T, validators: Array<Function> = []) {
-    super(host);
+  constructor(
+    host: ReactiveControllerHost,
+    value: T,
+    validatorsOrOptions: Array<ValidatorFn> | AbstractControlOptions = [],
+    asyncValidators: Array<AsyncValidatorFn> = []) {
+    super(host, pickValidators(validatorsOrOptions), pickAsyncValidators(asyncValidators, validatorsOrOptions));
+
+//    this._setUpdateStrategy(validatorOrOptions);
 
     this.value = value;
     this.defaultValue = value;
-    this.validators = validators;
     this.parent = null;
   }
 
@@ -66,15 +72,37 @@ export class FormControl<T = any> extends AbstractControl {
 
   /** @internal */
   override _runValidators(): ValidationErrors | null {
-    if (this.disabled) return null;
     let errors: ValidationErrors = {};
-    for (const validatorFn of this.validators) {
+    for (const validatorFn of this._validators) {
       const validationError: ValidationErrors | null = validatorFn(this);
       if (validationError !== null) {
         errors = Object.assign(errors, validationError);
       }
     }
     return Object.keys(errors).length ? errors : null;
+  }
+
+  /** @internal */
+  override _runAsyncValidators(): void {
+    this._hasPendingAsyncValidator = true;
+
+    const asyncValidationObservables = this._asyncValidators.map((validatorFn: AsyncValidatorFn) => from(validatorFn(this)).pipe(
+      map(validationResult => validationResult)
+    ));
+
+    forkJoin(asyncValidationObservables).subscribe(results => {
+      let errors: ValidationErrors | null = {};
+      this._hasPendingAsyncValidator = false;
+
+      for (const validationError of results) {
+        if (validationError !== null) {
+          errors = Object.assign(errors, validationError);
+        }
+      }
+
+      errors = Object.keys(errors).length ? errors : null;
+      this.setErrors(errors, { emitEvent: true });
+    });
   }
 
   /** @internal */

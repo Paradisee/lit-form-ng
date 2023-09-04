@@ -1,7 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Subject } from 'rxjs';
 
-import { ValidationErrors } from '../validators';
+import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
 
 
 export enum FormControlStatus {
@@ -9,6 +9,26 @@ export enum FormControlStatus {
   INVALID = 'INVALID',
   PENDING = 'PENDING',
   DISABLED = 'DISABLED',
+}
+
+export interface AbstractControlOptions {
+  validators?: Array<ValidatorFn>;
+  asyncValidators?: Array<AsyncValidatorFn>;
+  updateOn?: string;
+}
+
+
+export function pickValidators(validatorOrOptions: ValidatorFn[] | AbstractControlOptions): ValidatorFn[] {
+  if (Array.isArray(validatorOrOptions)) return validatorOrOptions;
+  if (typeof validatorOrOptions === 'object') return validatorOrOptions?.validators || [];
+  return [];
+}
+
+
+export function pickAsyncValidators(validators: AsyncValidatorFn[], validatorOrOptions: ValidatorFn[] | AbstractControlOptions): AsyncValidatorFn[] {
+  if (Array.isArray(validatorOrOptions)) return validators;
+  if (typeof validatorOrOptions === 'object') return validatorOrOptions?.asyncValidators || [];
+  return validators;
 }
 
 
@@ -25,14 +45,18 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   defaultValue!: TValue;
-  host!: ReactiveControllerHost;
+  host: ReactiveControllerHost;
   parent: AbstractControl | null = null;
   valueChanges: Subject<TValue> = new Subject<TValue>();
   statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
   disabledChanges: Subject<boolean> = new Subject<boolean>();
   errors: ValidationErrors | null = null;
-  validators: Array<Function> = [];
   modelToView!: Function;
+
+  protected _hasPendingAsyncValidator: boolean = false;
+  protected _validators: Array<ValidatorFn> = [];
+  protected _asyncValidators: Array<AsyncValidatorFn> = [];
+
   readonly status!: FormControlStatus;
   readonly touched: boolean = false;
   readonly pristine: boolean = true;
@@ -61,9 +85,15 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     return !this.pristine;
   }
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(
+    host: ReactiveControllerHost,
+    validators: Array<ValidatorFn>,
+    asyncValidators: Array<AsyncValidatorFn>) {
     this.host = host;
     this.host.addController(this);
+
+    this._assignValidators(validators);
+    this._assignAsyncValidators(asyncValidators);
   }
 
   abstract getRawValue(): TValue;
@@ -89,6 +119,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
   abstract _runValidators(): ValidationErrors | null;
+
+  abstract _runAsyncValidators(): void;
 
   hostConnected?(): void;
 
@@ -125,8 +157,14 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
       this.parent.updateValueAndValidity(options);
     }
 
-    this.errors = this._runValidators();
+    this.errors = this.disabled ? null : this._runValidators();
+
     (this as { status: FormControlStatus }).status = this._calculateStatus();
+
+    if (this.status === FormControlStatus.VALID) {
+      (this as { status: FormControlStatus }).status = FormControlStatus.PENDING;
+      this._runAsyncValidators();
+    }
 
     if (options.emitValue) {
       this.statusChanges.next(this.status);
@@ -145,15 +183,39 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * Sets the synchronous validators that are active on this control.
    * Calling this overwrites any existing synchronous validators.
    */
-  setValidators(validators: Array<Function> = []): void {
-    this.validators = validators;
+  setValidators(validators: Array<ValidatorFn>): void {
+    this._validators = validators;
   }
 
   /**
    * Add synchronous validators to this control, without affecting other validators.
    */
-  addValidators(validators: Array<Function> = []): void {
-    this.validators = [...this.validators, ...validators];
+  addValidators(validators: Array<ValidatorFn>): void {
+    this._validators = [...this._validators, ...validators];
+  }
+
+  /**
+   * Sets the asynchronous validators that are active on this control.
+   * Calling this overwrites any existing synchronous validators.
+   */
+  setAsyncValidators(validators: Array<AsyncValidatorFn>): void {
+    this._asyncValidators = validators;
+  }
+
+  /**
+   * Add asynchronous validators to this control, without affecting other validators.
+   */
+  addAsyncValidators(validators: Array<AsyncValidatorFn>): void {
+    this._asyncValidators = [...this._asyncValidators, ...validators];
+  }
+
+  setErrors(errors: ValidationErrors | null, options: { emitEvent?: boolean } = {}): void {
+    this.errors = errors;
+    (this as { status: FormControlStatus }).status = this._calculateStatus();
+
+    if (options.emitEvent) {
+      this._updateControlsErrors(options.emitEvent);
+    }
   }
 
   /**
@@ -235,8 +297,24 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   /** @internal */
   private _calculateStatus(): FormControlStatus {
     if (this.disabled) return FormControlStatus.DISABLED;
+    if (this._hasPendingAsyncValidator) return FormControlStatus.PENDING;
     if (this.errors) return FormControlStatus.INVALID;
     return FormControlStatus.VALID;
+  }
+
+  /** @internal */
+  private _updateControlsErrors(emitEvent: boolean): void {
+    (this as {status: FormControlStatus}).status = this._calculateStatus();
+
+    if (emitEvent) {
+      this.statusChanges.next(this.status);
+    }
+
+    if (this.parent) {
+      this.parent._updateControlsErrors(emitEvent);
+    }
+
+    this.host.requestUpdate();
   }
 
   /** @internal */
@@ -268,6 +346,21 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent._updatePristine(options);
     }
+  }
+
+  /** @internal */
+  private _assignValidators(validators: Array<ValidatorFn>): void {
+    this._validators = validators.slice();
+  }
+
+  /** @internal */
+  private _assignAsyncValidators(validators: Array<AsyncValidatorFn>): void {
+    this._asyncValidators = validators.slice();
+  }
+
+  /** @internal */
+  protected _setUpdateStrategy(options: Array<AsyncValidatorFn> | AbstractControlOptions | null): void {
+
   }
 
 }

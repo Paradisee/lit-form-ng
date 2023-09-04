@@ -1,7 +1,7 @@
 import { ReactiveControllerHost } from 'lit';
 
-import { ValidationErrors } from '../validators';
-import { AbstractControl } from './abstract_control';
+import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
+import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 import { FormControl } from './form_control';
 
 
@@ -19,8 +19,12 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     }, {});
   }
 
-  constructor(host: ReactiveControllerHost, controls: T) {
-    super(host);
+  constructor(
+    host: ReactiveControllerHost,
+    controls: T,
+    validatorsOrOptions: Array<ValidatorFn> | AbstractControlOptions = [],
+    asyncValidators: Array<AsyncValidatorFn> = []) {
+    super(host, pickValidators(validatorsOrOptions), pickAsyncValidators(asyncValidators, validatorsOrOptions));
 
     this.controls = controls;
 
@@ -34,7 +38,7 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
    * @param key - The key (property name) of the child control to retrieve.
    * @returns The child control associated with the specified key, or null if not found.
    */
-  get<K extends keyof T>(key: K): FormControl<T[K]> | null {
+  get<K extends keyof T>(key: K): AbstractControl<T[K]> | null {
     return this.controls[key] || null;
   }
 
@@ -90,14 +94,28 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
   }
 
   override _runValidators(): ValidationErrors | null {
-    const errors: ValidationErrors = {};
-    Object.entries(this.controls).forEach(([name, control]) => {
-      const _error: ValidationErrors | null = control._runValidators();
-      if (_error) {
-        errors[name] = _error;
+    let errors: ValidationErrors | null = {};
+
+    for (const validatorFn of this._validators) {
+      const validationErrors: ValidationErrors | null = validatorFn(this);
+      if (validationErrors) {
+        errors = Object.assign(errors, validationErrors);
       }
-    });
+    }
+
+    for (const [name, control] of Object.entries(this.controls)) {
+      const validationErrors: ValidationErrors | null = control._runValidators();
+      if (validationErrors) {
+        errors[name] = validationErrors;
+      }
+    }
+
     return Object.keys(errors).length ? errors : null;
+  }
+
+  /** @internal */
+  override _runAsyncValidators(): void {
+
   }
 
   /** @internal */
