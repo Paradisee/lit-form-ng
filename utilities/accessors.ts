@@ -28,10 +28,32 @@ const inputCheckboxAccessor = {
   }
 }
 
+const selectMultipleAccessor = {
+  modelToView: (element: HTMLSelectElement, values: Array<any> = []) => {
+    for (let i = 0; i < element.options.length; i++) {
+      element.options[i].selected = values.includes(element.options[i].value);
+    }
+  },
+  viewToModel: (element: HTMLSelectElement, formControl: FormControl) => {
+    const values = Array.from(element.selectedOptions).map((option: HTMLOptionElement) => {
+      return option.value;
+    });
+
+    formControl.setValue(values);
+  }
+}
+
 
 export function accessors(element: HTMLElement) {
   const localName: string = element.localName;
   const type: string | null = element.getAttribute('type');
+
+  if (localName === 'select') {
+    if (element.hasAttribute('multiple')) {
+      return selectMultipleAccessor;
+    }
+    return inputTextAccessor;
+  }
 
   if (localName === 'textarea') {
     return inputTextAccessor;
