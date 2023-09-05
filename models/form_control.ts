@@ -90,23 +90,27 @@ export class FormControl<T = any> extends AbstractControl {
   override _runAsyncValidators(): void {
     this._hasPendingAsyncValidator = true;
 
-    const asyncValidationObservables = this._asyncValidators.map((validatorFn: AsyncValidatorFn) => from(validatorFn(this)).pipe(
-      map(validationResult => validationResult)
-    ));
+    const asyncValidationObservables = this._asyncValidators.map(
+      (validatorFn: AsyncValidatorFn) => from(validatorFn(this)).pipe(
+        map(validationResult => validationResult)
+      )
+    );
 
-    forkJoin(asyncValidationObservables).subscribe(results => {
-      let errors: ValidationErrors | null = {};
-      this._hasPendingAsyncValidator = false;
+    this._asyncValidationSubscription = forkJoin(asyncValidationObservables).subscribe(
+      (results: Array<ValidationErrors | null>) => {
+        let errors: ValidationErrors | null = {};
+        this._hasPendingAsyncValidator = false;
 
-      for (const validationError of results) {
-        if (validationError !== null) {
-          errors = Object.assign(errors, validationError);
+        for (const validationError of results) {
+          if (validationError !== null) {
+            errors = Object.assign(errors, validationError);
+          }
         }
-      }
 
-      errors = Object.keys(errors).length ? errors : null;
-      this.setErrors(errors, { emitEvent: true });
-    });
+        errors = Object.keys(errors).length ? errors : null;
+        this.setErrors(errors, { emitEvent: true });
+      }
+    );
   }
 
   /** @internal */

@@ -53,6 +53,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   errors: ValidationErrors | null = null;
   modelToView!: Function;
 
+  protected _asyncValidationSubscription: any;
   protected _hasPendingAsyncValidator: boolean = false;
   protected _validators: Array<ValidatorFn> = [];
   protected _asyncValidators: Array<AsyncValidatorFn> = [];
@@ -157,11 +158,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
       this.parent.updateValueAndValidity(options);
     }
 
+    this._cancelExistingSubscription();
     this.errors = this.disabled ? null : this._runValidators();
-
     (this as { status: FormControlStatus }).status = this._calculateStatus();
 
-    if (this.status === FormControlStatus.VALID) {
+    if (this.status === FormControlStatus.VALID || this.status === FormControlStatus.PENDING) {
       (this as { status: FormControlStatus }).status = FormControlStatus.PENDING;
       this._runAsyncValidators();
     }
@@ -356,6 +357,14 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   /** @internal */
   private _assignAsyncValidators(validators: Array<AsyncValidatorFn>): void {
     this._asyncValidators = validators.slice();
+  }
+
+  /** @internal */
+  private _cancelExistingSubscription(): void {
+    if (this._asyncValidationSubscription) {
+      this._asyncValidationSubscription.unsubscribe();
+      this._hasPendingAsyncValidator = false;
+    }
   }
 
   /** @internal */

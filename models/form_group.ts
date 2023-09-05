@@ -10,7 +10,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
 
   get value(): Partial<T> {
     return Object.entries(this.controls).reduce((acc, [name, control]) => {
-      if (!control.disabled) return acc;
+      if (control.disabled) return acc;
       return {
         ...acc,
         [name]: control.value,
