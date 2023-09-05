@@ -2,19 +2,18 @@ import { ReactiveControllerHost } from 'lit';
 
 import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
 import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
-import { FormControl } from './form_control';
 
 
-export class FormGroup<T extends Record<string, FormControl> = any> extends AbstractControl {
+export class FormGroup<T extends Record<string, AbstractControl> = any> extends AbstractControl {
 
   controls: T;
 
   get value(): Partial<T> {
-    return Object.keys(this.controls).reduce((acc, key) => {
-      if (this.controls[key]?.disabled) return acc;
+    return Object.entries(this.controls).reduce((acc, [name, control]) => {
+      if (!control.disabled) return acc;
       return {
         ...acc,
-        [key]: this.controls[key].value,
+        [name]: control.value,
       }
     }, {});
   }
@@ -51,10 +50,23 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
     }, {});
   }
 
-  // TODO
-  // Allow the setValue method only if the passed values are effectively keys (controls)
-  override setValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override setValue(value: Record<keyof T, any>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+    const assertAllValuesPresent: boolean = Object.keys(this.controls).every(key => key in value);
 
+    if (!assertAllValuesPresent) {
+      throw new Error('You must provide every control to use the setValue method.');
+    }
+
+    Object.entries(this.controls).forEach(([key, control]) => {
+      control.setValue(value[key], { onlySelf: true, emitValue: options.emitValue });
+    });
+
+    if (options.emitValue !== false) {
+      this.valueChanges.next(value);
+    }
+
+    this.markAsDirty();
+    this.updateValueAndValidity(options);
   }
 
   /**
@@ -63,7 +75,7 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
    * @param options - Options for patching controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.keys(value).forEach((key: keyof T) => {
       this.controls[key]?.setValue(value[key], options);
     });
@@ -75,7 +87,7 @@ export class FormGroup<T extends Record<string, FormControl> = any> extends Abst
    * @param options - Options for resetting controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.entries(this.controls).forEach(([name, control]) => {
       control.reset(value[name], options);
     });

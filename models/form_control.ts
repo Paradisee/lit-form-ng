@@ -31,9 +31,13 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for setting the control's value (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override setValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.value = value;
-    options.emitValue && this.valueChanges.next(value);
+
+    if (options.emitValue !== false) {
+      this.valueChanges.next(value);
+    }
+
     this.markAsDirty();
     this.updateValueAndValidity(options);
   }
@@ -44,7 +48,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for patching the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: T, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override patchValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.setValue(value, options);
   }
 
@@ -54,7 +58,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for resetting the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue: boolean } = { onlySelf: false, emitValue: true }): void {
+  override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.markAsPristine();
     this.markAsUntouched();
     this.setValue(value, options);
