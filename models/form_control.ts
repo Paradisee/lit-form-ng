@@ -7,7 +7,7 @@ import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValid
 
 export class FormControl<T = any> extends AbstractControl {
 
-  public readonly defaultValue: T;
+  public readonly defaultValue: T = null as unknown as T;
 
   constructor(
     host: ReactiveControllerHost,
@@ -22,7 +22,7 @@ export class FormControl<T = any> extends AbstractControl {
     this.defaultValue = value;
   }
 
-  override getRawValue(): T {
+  public override getRawValue(): T {
     return this.value;
   }
 
@@ -32,7 +32,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for setting the control's value (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.value = value;
 
     if (options.emitValue !== false) {
@@ -49,7 +49,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for patching the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override patchValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.setValue(value, options);
   }
 
@@ -59,7 +59,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for resetting the control (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.markAsPristine();
     this.markAsUntouched();
     this.setValue(value, options);
@@ -71,7 +71,7 @@ export class FormControl<T = any> extends AbstractControl {
    * This method is used internally to include the control itself when iterating through child controls.
    * @returns An array containing the control itself.
    */
-  override _forEachChild(cb: (control: AbstractControl) => void): void {
+  protected override _forEachChild(cb: (control: AbstractControl) => void): void {
 
   }
 
@@ -115,7 +115,7 @@ export class FormControl<T = any> extends AbstractControl {
   }
 
   /** @internal */
-  override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
+  protected override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
     return false;
   }
 

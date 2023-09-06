@@ -36,11 +36,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   private _value!: TValue;
 
-  get value(): TValue {
+  public get value(): TValue {
     return this._value;
   }
 
-  set value(value: TValue) {
+  protected set value(value: TValue) {
     this._value = value;
   }
 
@@ -104,41 +104,44 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   /**
    * Returns the raw value. Abstract method (implemented in sub-classes).
    */
-  abstract getRawValue(): TValue;
+  public abstract getRawValue(): TValue;
 
   /**
    * Sets the value of the control. Abstract method (implemented in sub-classes).
    */
-  abstract setValue(value: TRawValue, options?: Object): void;
+  public abstract setValue(value: TRawValue, options?: Object): void;
 
   /**
    * Patches the value of the control. Abstract method (implemented in sub-classes).
    */
-  abstract patchValue(value: TValue, options?: Object): void;
+  public abstract patchValue(value: TValue, options?: Object): void;
 
   /**
    * Resets the control. Abstract method (implemented in sub-classes).
    */
-  abstract reset(value?: TValue, options?: Object): void;
+  public abstract reset(value?: TValue, options?: Object): void;
 
   /**
    * Returns an array of controls. Abstract method (implemented in sub-classes).
    */
-  abstract _forEachChild(cb: (control: AbstractControl) => void): void;
+  protected abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
+  // TODO - These 2 methods could be implemented here and not as abstract
   abstract _runValidators(): ValidationErrors | null;
-
   abstract _runAsyncValidators(): void;
 
-  hostConnected?(): void;
+  /** @internal */
+  protected abstract _anyControls(condition: (c: AbstractControl) => boolean): boolean;
 
-  hostDisconnected?(): void;
+  public hostConnected?(): void;
 
-  hostUpdate?(): void;
+  public hostDisconnected?(): void;
 
-  hostUpdated?(): void;
+  public hostUpdate?(): void;
 
-  disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
+  public hostUpdated?(): void;
+
+  public disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
     this._forEachChild((control: AbstractControl) => {
@@ -149,7 +152,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.updateValueAndValidity(options);
   }
 
-  enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
+  public enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.VALID;
 
     this._forEachChild((control: AbstractControl) => {
@@ -160,7 +163,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.updateValueAndValidity(options);
   }
 
-  updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
+  public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
     if (this.parent) {
       this.parent.updateValueAndValidity(options);
     }
@@ -197,14 +200,14 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * Sets the synchronous validators that are active on this control.
    * Calling this overwrites any existing synchronous validators.
    */
-  setValidators(validators: Array<ValidatorFn>): void {
+  public setValidators(validators: Array<ValidatorFn>): void {
     this._validators = validators;
   }
 
   /**
    * Add synchronous validators to this control, without affecting other validators.
    */
-  addValidators(validators: Array<ValidatorFn>): void {
+  public addValidators(validators: Array<ValidatorFn>): void {
     this._validators = [...this._validators, ...validators];
   }
 
@@ -212,18 +215,18 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * Sets the asynchronous validators that are active on this control.
    * Calling this overwrites any existing synchronous validators.
    */
-  setAsyncValidators(validators: Array<AsyncValidatorFn>): void {
+  public setAsyncValidators(validators: Array<AsyncValidatorFn>): void {
     this._asyncValidators = validators;
   }
 
   /**
    * Add asynchronous validators to this control, without affecting other validators.
    */
-  addAsyncValidators(validators: Array<AsyncValidatorFn>): void {
+  public addAsyncValidators(validators: Array<AsyncValidatorFn>): void {
     this._asyncValidators = [...this._asyncValidators, ...validators];
   }
 
-  setErrors(errors: ValidationErrors | null, options: { emitEvent?: boolean } = {}): void {
+  public setErrors(errors: ValidationErrors | null, options: { emitEvent?: boolean } = {}): void {
     (this as { errors: ValidationErrors | null }).errors = errors;
     (this as { status: FormControlStatus }).status = this._calculateStatus();
 
@@ -235,7 +238,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   /**
    * Marks the control and all its descendant controls as `touched`.
    */
-  markAllAsTouched(): void {
+  public markAllAsTouched(): void {
     this.markAsTouched({ onlySelf: true });
 
     this._forEachChild((control: AbstractControl) => {
@@ -247,7 +250,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * Marks the control as `touched`. A control is touched by focus and
    * blur events that do not change the value.
    */
-  markAsTouched(options: { onlySelf?: boolean } = {}): void {
+  public markAsTouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = true;
 
     if (this.parent && !options.onlySelf) {
@@ -261,7 +264,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * If the control has any children, also marks all children as `untouched`
    * and recalculates the `touched` status of all parent controls.
    */
-  markAsUntouched(options: { onlySelf?: boolean } = {}): void {
+  public markAsUntouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = false;
 
     this._forEachChild((control: AbstractControl) => {
@@ -277,7 +280,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * Marks the control as `dirty`. A control becomes dirty when
    * the control's value is changed through the UI.
    */
-  markAsDirty(options: { onlySelf?: boolean } = {}): void {
+  public markAsDirty(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = false;
 
     if (this.parent && !options.onlySelf) {
@@ -291,7 +294,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * If the control has any children, marks all children as `pristine`,
    * and recalculates the `pristine` status of all parent controls.
    */
-  markAsPristine(options: { onlySelf?: boolean } = {}): void {
+  public markAsPristine(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = true;
 
     this._forEachChild((control: AbstractControl) => {
@@ -304,7 +307,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   // TODO
-  markAsPending(): void {
+  public markAsPending(): void {
 
   }
 
@@ -330,9 +333,6 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
     this.host.requestUpdate();
   }
-
-  /** @internal */
-  abstract _anyControls(condition: (c: AbstractControl) => boolean): boolean;
 
   /** @internal */
   private _anyControlsDirty(): boolean {

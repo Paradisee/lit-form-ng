@@ -41,7 +41,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     return this.controls[key] || null;
   }
 
-  override getRawValue(): Partial<T> {
+  public override getRawValue(): Partial<T> {
     return Object.keys(this.controls).reduce((acc, key) => {
       return {
         ...acc,
@@ -50,7 +50,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     }, {});
   }
 
-  override setValue(value: Record<keyof T, any>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override setValue(value: Record<keyof T, any>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     const assertAllValuesPresent: boolean = Object.keys(this.controls).every(key => key in value);
 
     if (!assertAllValuesPresent) {
@@ -75,7 +75,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * @param options - Options for patching controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.keys(value).forEach((key: keyof T) => {
       this.controls[key]?.setValue(value[key], options);
     });
@@ -87,7 +87,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * @param options - Options for resetting controls (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.entries(this.controls).forEach(([name, control]) => {
       control.reset(value[name], options);
     });
@@ -101,7 +101,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * This method is used internally to iterate through the child controls.
    * @returns An array of child controls.
    */
-  override _forEachChild(cb: (control: AbstractControl) => void): void {
+  protected override _forEachChild(cb: (control: AbstractControl) => void): void {
     Object.values(this.controls).forEach((control: AbstractControl) => cb(control));
   }
 
@@ -131,7 +131,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
   }
 
   /** @internal */
-  override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
+  protected override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
     for (const control of Object.values(this.controls)) {
       if (condition(control)) {
         return true;

@@ -1,7 +1,7 @@
 import { AttributePart, noChange } from 'lit';
 import { AsyncDirective, directive, PartInfo } from 'lit/async-directive.js';
 
-import { FormControl } from '../models/form_control';
+import { AbstractControl } from '../models/abstract_control';
 import { FormGroup } from '../models/form_group';
 import { accessors } from '../utilities/accessors';
 
@@ -9,7 +9,7 @@ import { accessors } from '../utilities/accessors';
 class FormControlNameDirective extends AsyncDirective {
 
   private host: HTMLElement;
-  private formControl!: FormControl;
+  private formControl!: AbstractControl;
   private accessor: any;
 
   constructor(partInfo: PartInfo) {
@@ -47,7 +47,7 @@ class FormControlNameDirective extends AsyncDirective {
 
   public render(formGroup: FormGroup, name: string) {
     if (!this.formControl) {
-      const formControl: FormControl | null = formGroup.get(name);
+      const formControl: AbstractControl | null = formGroup.get(name);
 
       if (formControl === null) {
         throw new Error(`Couldn't find a [formControlName]="${name}"`);
