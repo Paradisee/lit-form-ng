@@ -44,13 +44,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._value = value;
   }
 
-  defaultValue!: TValue;
-  host: ReactiveControllerHost;
-  parent: AbstractControl | null = null;
+  private host: ReactiveControllerHost;
+
   valueChanges: Subject<TValue> = new Subject<TValue>();
   statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
   disabledChanges: Subject<boolean> = new Subject<boolean>();
-  errors: ValidationErrors | null = null;
   modelToView!: Function;
 
   protected _asyncValidationSubscription: any;
@@ -58,31 +56,37 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   protected _validators: Array<ValidatorFn> = [];
   protected _asyncValidators: Array<AsyncValidatorFn> = [];
 
-  readonly status!: FormControlStatus;
-  readonly touched: boolean = false;
-  readonly pristine: boolean = true;
+  public readonly parent: AbstractControl | null = null;
+  public readonly errors: ValidationErrors | null = null;
+  public readonly status: FormControlStatus = FormControlStatus.VALID;
+  public readonly touched: boolean = false;
+  public readonly pristine: boolean = true;
 
-  get valid(): boolean {
+  public get valid(): boolean {
     return this.status === FormControlStatus.VALID;
   }
 
-  get invalid(): boolean {
+  public get invalid(): boolean {
     return this.status === FormControlStatus.INVALID;
   }
 
-  get enabled(): boolean {
+  public get pending(): boolean {
+    return this.status === FormControlStatus.PENDING;
+  }
+
+  public get enabled(): boolean {
     return this.status !== FormControlStatus.DISABLED;
   }
 
-  get disabled(): boolean {
+  public get disabled(): boolean {
     return this.status === FormControlStatus.DISABLED;
   }
 
-  get untouched(): boolean {
+  public get untouched(): boolean {
     return !this.touched;
   }
 
-  get dirty(): boolean {
+  public get dirty(): boolean {
     return !this.pristine;
   }
 
@@ -97,6 +101,9 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._assignAsyncValidators(asyncValidators);
   }
 
+  /**
+   * Returns the raw value. Abstract method (implemented in sub-classes).
+   */
   abstract getRawValue(): TValue;
 
   /**
@@ -159,7 +166,13 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
 
     this._cancelExistingSubscription();
-    this.errors = this.disabled ? null : this._runValidators();
+
+    if (this.disabled) {
+      this.setErrors(null)
+    } else {
+      this._runValidators()
+    }
+
     (this as { status: FormControlStatus }).status = this._calculateStatus();
 
     if (this.status === FormControlStatus.VALID || this.status === FormControlStatus.PENDING) {
@@ -211,7 +224,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   setErrors(errors: ValidationErrors | null, options: { emitEvent?: boolean } = {}): void {
-    this.errors = errors;
+    (this as { errors: ValidationErrors | null }).errors = errors;
     (this as { status: FormControlStatus }).status = this._calculateStatus();
 
     if (options.emitEvent) {

@@ -7,6 +7,8 @@ import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValid
 
 export class FormControl<T = any> extends AbstractControl {
 
+  public readonly defaultValue: T;
+
   constructor(
     host: ReactiveControllerHost,
     value: T,
@@ -18,7 +20,6 @@ export class FormControl<T = any> extends AbstractControl {
 
     this.value = value;
     this.defaultValue = value;
-    this.parent = null;
   }
 
   override getRawValue(): T {

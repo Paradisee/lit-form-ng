@@ -6,9 +6,9 @@ import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValid
 
 export class FormGroup<T extends Record<string, AbstractControl> = any> extends AbstractControl {
 
-  controls: T;
+  public controls: T;
 
-  get value(): Partial<T> {
+  public get value(): Partial<T> {
     return Object.entries(this.controls).reduce((acc, [name, control]) => {
       if (control.disabled) return acc;
       return {
@@ -28,7 +28,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     this.controls = controls;
 
     Object.values(this.controls).forEach((control: AbstractControl) => {
-      control.parent = this;
+      (control as { parent: AbstractControl }).parent = this;
     });
   }
 
@@ -37,7 +37,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * @param key - The key (property name) of the child control to retrieve.
    * @returns The child control associated with the specified key, or null if not found.
    */
-  get<K extends keyof T>(key: K): AbstractControl<T[K]> | null {
+  public get<K extends keyof T>(key: K): AbstractControl<T[K]> | null {
     return this.controls[key] || null;
   }
 
