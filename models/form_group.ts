@@ -1,6 +1,6 @@
 import { ReactiveControllerHost } from 'lit';
 
-import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
+import { AsyncValidatorFn, ValidatorFn } from '../validators';
 import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 
 
@@ -105,31 +105,6 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     Object.values(this.controls).forEach((control: AbstractControl) => cb(control));
   }
 
-  override _runValidators(): ValidationErrors | null {
-    let errors: ValidationErrors | null = {};
-
-    for (const validatorFn of this._validators) {
-      const validationErrors: ValidationErrors | null = validatorFn(this);
-      if (validationErrors) {
-        errors = Object.assign(errors, validationErrors);
-      }
-    }
-
-    for (const [name, control] of Object.entries(this.controls)) {
-      const validationErrors: ValidationErrors | null = control._runValidators();
-      if (validationErrors) {
-        errors[name] = validationErrors;
-      }
-    }
-
-    return Object.keys(errors).length ? errors : null;
-  }
-
-  /** @internal */
-  override _runAsyncValidators(): void {
-
-  }
-
   /** @internal */
   protected override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
     for (const control of Object.values(this.controls)) {
@@ -138,6 +113,11 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
       }
     }
     return false;
+  }
+
+  /** @internal */
+  protected override _allControlsDisabled(): boolean {
+    return Object.values(this.controls).every((control: AbstractControl) => control.disabled);
   }
 
 }

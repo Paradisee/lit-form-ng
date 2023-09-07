@@ -65,7 +65,7 @@ class FormControlNameDirective extends AsyncDirective {
       this.reconnected();
 
       this.formControl.modelToView = this.modelToView;
-      this.modelToView(this.formControl.value);
+      this.formControl.setValue(this.formControl.value);
     }
 
     return noChange;

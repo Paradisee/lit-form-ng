@@ -1,7 +1,6 @@
 import { ReactiveControllerHost } from 'lit';
-import { forkJoin, from, map } from 'rxjs';
 
-import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
+import { AsyncValidatorFn, ValidatorFn } from '../validators';
 import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 
 
@@ -76,47 +75,13 @@ export class FormControl<T = any> extends AbstractControl {
   }
 
   /** @internal */
-  override _runValidators(): ValidationErrors | null {
-    let errors: ValidationErrors = {};
-    for (const validatorFn of this._validators) {
-      const validationError: ValidationErrors | null = validatorFn(this);
-      if (validationError !== null) {
-        errors = Object.assign(errors, validationError);
-      }
-    }
-    return Object.keys(errors).length ? errors : null;
-  }
-
-  /** @internal */
-  override _runAsyncValidators(): void {
-    this._hasPendingAsyncValidator = true;
-
-    const asyncValidationObservables = this._asyncValidators.map(
-      (validatorFn: AsyncValidatorFn) => from(validatorFn(this)).pipe(
-        map(validationResult => validationResult)
-      )
-    );
-
-    this._asyncValidationSubscription = forkJoin(asyncValidationObservables).subscribe(
-      (results: Array<ValidationErrors | null>) => {
-        let errors: ValidationErrors | null = {};
-        this._hasPendingAsyncValidator = false;
-
-        for (const validationError of results) {
-          if (validationError !== null) {
-            errors = Object.assign(errors, validationError);
-          }
-        }
-
-        errors = Object.keys(errors).length ? errors : null;
-        this.setErrors(errors, { emitEvent: true });
-      }
-    );
-  }
-
-  /** @internal */
   protected override _anyControls(condition: (c: AbstractControl) => boolean): boolean {
     return false;
+  }
+
+  /** @internal */
+  protected override _allControlsDisabled(): boolean {
+    return this.disabled;
   }
 
 }

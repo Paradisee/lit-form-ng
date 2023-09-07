@@ -1,5 +1,5 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
-import { Subject } from 'rxjs';
+import { forkJoin, from, map, Subject } from 'rxjs';
 
 import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
 
@@ -126,12 +126,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    */
   protected abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
-  // TODO - These 2 methods could be implemented here and not as abstract
-  abstract _runValidators(): ValidationErrors | null;
-  abstract _runAsyncValidators(): void;
-
   /** @internal */
   protected abstract _anyControls(condition: (c: AbstractControl) => boolean): boolean;
+
+  /** @internal */
+  protected abstract _allControlsDisabled(): boolean;
 
   public hostConnected?(): void;
 
@@ -141,57 +140,54 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   public hostUpdated?(): void;
 
-  public disable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
+  public disable(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
     this._forEachChild((control: AbstractControl) => {
-      control.disable({ onlySelf: true, emitValue: true });
+      control.disable({ onlySelf: true });
     });
 
     this.disabledChanges.next(true);
     this.updateValueAndValidity(options);
   }
 
-  public enable(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
+  public enable(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.VALID;
 
     this._forEachChild((control: AbstractControl) => {
-      control.enable({ onlySelf: true, emitValue: true });
+      control.enable({ onlySelf: true });
     });
 
     this.disabledChanges.next(false);
     this.updateValueAndValidity(options);
   }
 
-  public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = { onlySelf: false, emitValue: true }): void {
-    if (this.parent) {
-      this.parent.updateValueAndValidity(options);
-    }
-
-    this._cancelExistingSubscription();
-
-    if (this.disabled) {
-      this.setErrors(null)
-    } else {
-      this._runValidators()
-    }
-
-    (this as { status: FormControlStatus }).status = this._calculateStatus();
-
-    if (this.status === FormControlStatus.VALID || this.status === FormControlStatus.PENDING) {
-      (this as { status: FormControlStatus }).status = FormControlStatus.PENDING;
-      this._runAsyncValidators();
-    }
-
-    if (options.emitValue) {
-      this.statusChanges.next(this.status);
-    }
+  public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+    (this as { status: FormControlStatus }).status = this._allControlsDisabled() ? FormControlStatus.DISABLED : FormControlStatus.VALID;
 
     if (this.modelToView) {
       this.modelToView(this.value);
     }
 
-    if (!options.onlySelf) {
+    if (this.enabled) {
+      this._cancelExistingSubscription();
+
+      (this as { errors: ValidationErrors | null }).errors = this._runValidators();
+      (this as { status: FormControlStatus }).status = this._calculateStatus();
+
+      if (this.status === FormControlStatus.VALID || this.status === FormControlStatus.PENDING) {
+        this._runAsyncValidators();
+      }
+    }
+
+    if (options.emitValue !== false) {
+      this.statusChanges.next(this.status);
+      this.valueChanges.next(this.value);
+    }
+
+    if (this.parent && !options.onlySelf) {
+      this.parent.updateValueAndValidity(options);
+    } else {
       this.host.requestUpdate();
     }
   }
@@ -313,15 +309,16 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   /** @internal */
   private _calculateStatus(): FormControlStatus {
-    if (this.disabled) return FormControlStatus.DISABLED;
-    if (this._hasPendingAsyncValidator) return FormControlStatus.PENDING;
+    if (this._allControlsDisabled()) return FormControlStatus.DISABLED;
     if (this.errors) return FormControlStatus.INVALID;
+    if (this._hasPendingAsyncValidator || this._anyControlsHaveStatus(FormControlStatus.PENDING)) return FormControlStatus.INVALID;
+    if (this._anyControlsHaveStatus(FormControlStatus.INVALID)) return FormControlStatus.INVALID;
     return FormControlStatus.VALID;
   }
 
   /** @internal */
   private _updateControlsErrors(emitEvent: boolean): void {
-    (this as {status: FormControlStatus}).status = this._calculateStatus();
+    (this as { status: FormControlStatus }).status = this._calculateStatus();
 
     if (emitEvent) {
       this.statusChanges.next(this.status);
@@ -332,6 +329,53 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
 
     this.host.requestUpdate();
+  }
+
+  /** @internal */
+  private _runValidators(): ValidationErrors | null {
+    let errors: ValidationErrors = {};
+    for (const validatorFn of this._validators) {
+      const validationError: ValidationErrors | null = validatorFn(this);
+      if (validationError !== null) {
+        errors = Object.assign(errors, validationError);
+      }
+    }
+    return Object.keys(errors).length ? errors : null;
+  }
+
+  /** @internal */
+  private _runAsyncValidators(): void {
+    if (!this._asyncValidators.length) return;
+
+    (this as { status: FormControlStatus }).status = FormControlStatus.PENDING;
+    this._hasPendingAsyncValidator = true;
+
+    const asyncValidationObservables = this._asyncValidators.map(
+      (validatorFn: AsyncValidatorFn) => from(validatorFn(this)).pipe(
+        map(validationResult => validationResult)
+      )
+    );
+
+    this._asyncValidationSubscription = forkJoin(asyncValidationObservables).subscribe(
+      (results: Array<ValidationErrors | null>) => {
+        let errors: ValidationErrors | null = {};
+        this._hasPendingAsyncValidator = false;
+
+        for (const validationError of results) {
+          if (validationError !== null) {
+            errors = Object.assign(errors, validationError);
+          }
+        }
+
+        errors = Object.keys(errors).length ? errors : null;
+        this.setErrors(errors, { emitEvent: true });
+      }
+    );
+  }
+
+  /** @internal */
+  private _anyControlsHaveStatus(status: FormControlStatus): boolean {
+    return this._anyControls((control: AbstractControl) => control.status === status);
   }
 
   /** @internal */
