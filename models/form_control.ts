@@ -1,5 +1,7 @@
 import { ReactiveControllerHost } from 'lit';
+import { DirectiveResult } from 'lit/async-directive';
 
+import { connect } from '../directives/connect_directive';
 import { AsyncValidatorFn, ValidatorFn } from '../validators';
 import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 
@@ -19,6 +21,10 @@ export class FormControl<T = any> extends AbstractControl {
 
     this.value = value;
     this.defaultValue = value;
+  }
+
+  public connect(): DirectiveResult {
+    return connect(this);
   }
 
   public override getRawValue(): T {

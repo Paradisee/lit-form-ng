@@ -1,4 +1,5 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
+import { DirectiveResult } from 'lit/async-directive';
 import { forkJoin, from, map, Subject } from 'rxjs';
 
 import { AsyncValidatorFn, ValidationErrors, ValidatorFn } from '../validators';
@@ -100,6 +101,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._assignValidators(validators);
     this._assignAsyncValidators(asyncValidators);
   }
+
+  public abstract connect(name: string): DirectiveResult;
 
   /**
    * Returns the raw value. Abstract method (implemented in sub-classes).

@@ -2,14 +2,13 @@ import { AttributePart, noChange } from 'lit';
 import { AsyncDirective, directive, PartInfo } from 'lit/async-directive.js';
 
 import { AbstractControl } from '../models/abstract_control';
-import { FormGroup } from '../models/form_group';
 import { accessors } from '../utilities/accessors';
 
 
-class FormControlNameDirective extends AsyncDirective {
+class ConnectDirective extends AsyncDirective {
 
   private host: HTMLElement;
-  private formControl!: AbstractControl;
+  private control!: AbstractControl;
   private accessor: any;
 
   constructor(partInfo: PartInfo) {
@@ -24,7 +23,7 @@ class FormControlNameDirective extends AsyncDirective {
   protected reconnected(): void {
     this.host.addEventListener('input', this.onInput);
 
-    this.formControl.disabledChanges.subscribe((value: boolean) => {
+    this.control.disabledChanges.subscribe((value: boolean) => {
       (this.host as any).disabled = value;
     });
   }
@@ -42,19 +41,18 @@ class FormControlNameDirective extends AsyncDirective {
   }
 
   private viewToModel(): void {
-    this.accessor.viewToModel(this.host, this.formControl);
+    this.accessor.viewToModel(this.host, this.control);
   }
 
-  public render(formGroup: FormGroup, name: string) {
-    if (!this.formControl) {
-      const formControl: AbstractControl | null = formGroup.get(name);
+  public render(control: AbstractControl | null, name?: string) {
+    console.log(control);
 
-      if (formControl === null) {
-        throw new Error(`Couldn't find a [formControlName]="${name}"`);
-      } else {
-        this.formControl = formControl;
+    if (!this.control) {
+      if (control === null) {
+        throw new Error(`Couldn't find a form control with name: "${name}"`);
       }
 
+      this.control = control;
       this.accessor = accessors(this.host);
 
       if (this.accessor === null) {
@@ -64,8 +62,8 @@ class FormControlNameDirective extends AsyncDirective {
 
       this.reconnected();
 
-      this.formControl.modelToView = this.modelToView;
-      this.formControl.setValue(this.formControl.value);
+      this.control.modelToView = this.modelToView;
+      this.control.setValue(this.control.value);
     }
 
     return noChange;
@@ -73,5 +71,4 @@ class FormControlNameDirective extends AsyncDirective {
 
 }
 
-
-export const formControlName = directive(FormControlNameDirective);
+export const connect = directive(ConnectDirective);

@@ -1,5 +1,7 @@
 import { ReactiveControllerHost } from 'lit';
+import { DirectiveResult } from 'lit/async-directive';
 
+import { connect } from '../directives/connect_directive';
 import { AsyncValidatorFn, ValidatorFn } from '../validators';
 import { AbstractControl, AbstractControlOptions, pickAsyncValidators, pickValidators } from './abstract_control';
 
@@ -30,6 +32,10 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     Object.values(this.controls).forEach((control: AbstractControl) => {
       (control as { parent: AbstractControl }).parent = this;
     });
+  }
+
+  public connect(name: string): DirectiveResult {
+    return connect(this.get(name), name);
   }
 
   /**
