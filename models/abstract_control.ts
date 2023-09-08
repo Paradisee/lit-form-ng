@@ -47,15 +47,16 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   private host: ReactiveControllerHost;
 
-  valueChanges: Subject<TValue> = new Subject<TValue>();
-  statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
-  disabledChanges: Subject<boolean> = new Subject<boolean>();
-  modelToView!: Function;
-
   protected _asyncValidationSubscription: any;
   protected _hasPendingAsyncValidator: boolean = false;
   protected _validators: Array<ValidatorFn> = [];
   protected _asyncValidators: Array<AsyncValidatorFn> = [];
+
+  public valueChanges: Subject<TValue> = new Subject<TValue>();
+  public statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
+  public disabledChanges: Subject<boolean> = new Subject<boolean>();
+  // TODO - Should't be visible outside
+  public modelToView!: Function;
 
   public readonly parent: AbstractControl | null = null;
   public readonly errors: ValidationErrors | null = null;

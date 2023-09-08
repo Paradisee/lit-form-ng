@@ -45,8 +45,6 @@ class ConnectDirective extends AsyncDirective {
   }
 
   public render(control: AbstractControl | null, name?: string) {
-    console.log(control);
-
     if (!this.control) {
       if (control === null) {
         throw new Error(`Couldn't find a form control with name: "${name}"`);
@@ -63,7 +61,8 @@ class ConnectDirective extends AsyncDirective {
       this.reconnected();
 
       this.control.modelToView = this.modelToView;
-      this.control.setValue(this.control.value);
+      this.modelToView(this.control.value);
+      this.control.updateValueAndValidity();
     }
 
     return noChange;
