@@ -144,6 +144,19 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   public hostUpdated?(): void;
 
+  /**
+   * Retrieves a child control from the group by its key.
+   * @param path - The key (property name) of the child control to retrieve.
+   * @returns The child control associated with the specified key, or null if not found.
+   */
+  public get(path: string | Array<string>): AbstractControl | null {
+    const paths: Array<string> = (path as string).split('.');
+
+    return paths.reduce((control: AbstractControl | null, name: string) => {
+      return control?._find(name) || null;
+    }, this);
+  }
+
   public disable(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
@@ -426,6 +439,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
       this._asyncValidationSubscription.unsubscribe();
       this._hasPendingAsyncValidator = false;
     }
+  }
+
+  /** @internal */
+  protected _find(name: string): AbstractControl | null {
+    return null;
   }
 
   /** @internal */

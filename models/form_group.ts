@@ -38,15 +38,6 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     return connect(this.get(name), name);
   }
 
-  /**
-   * Retrieves a child control from the group by its key.
-   * @param key - The key (property name) of the child control to retrieve.
-   * @returns The child control associated with the specified key, or null if not found.
-   */
-  public get<K extends keyof T>(key: K): AbstractControl<T[K]> | null {
-    return this.controls[key] || null;
-  }
-
   public override getRawValue(): Partial<T> {
     return Object.keys(this.controls).reduce((acc, key) => {
       return {
@@ -124,6 +115,11 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
   /** @internal */
   protected override _allControlsDisabled(): boolean {
     return Object.values(this.controls).every((control: AbstractControl) => control.disabled);
+  }
+
+  /** @internal */
+  protected override _find(name: string): AbstractControl | null {
+    return this.controls[name] || null;
   }
 
 }
