@@ -27,6 +27,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     asyncValidators: Array<AsyncValidatorFn> = []) {
     super(host, pickValidators(validatorsOrOptions), pickAsyncValidators(asyncValidators, validatorsOrOptions));
 
+    this._setUpdateStrategy(validatorsOrOptions);
     this.controls = controls;
 
     Object.values(this.controls).forEach((control: AbstractControl) => {

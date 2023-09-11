@@ -17,11 +17,13 @@ class ConnectDirective extends AsyncDirective {
     this.host = (partInfo as AttributePart).element;
 
     this.onInput = this.onInput.bind(this);
+    this.onBlur = this.onBlur.bind(this);
     this.modelToView = this.modelToView.bind(this);
   }
 
   protected reconnected(): void {
     this.host.addEventListener('input', this.onInput);
+    this.host.addEventListener('blur', this.onBlur);
 
     this.control.disabledChanges.subscribe((value: boolean) => {
       (this.host as any).disabled = value;
@@ -30,10 +32,21 @@ class ConnectDirective extends AsyncDirective {
 
   protected disconnected(): void {
     this.host.removeEventListener('input', this.onInput);
+    this.host.removeEventListener('blur', this.onBlur);
   }
 
   private onInput(event: Event): void {
-    this.viewToModel();
+    if (this.control.updateOn === 'change') {
+      this.viewToModel();
+    }
+  }
+
+  private onBlur(event: Event): void {
+    this.control.markAsTouched();
+
+    if (this.control.updateOn === 'blur') {
+      this.viewToModel();
+    }
   }
 
   private modelToView(value: any): void {

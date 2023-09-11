@@ -17,7 +17,7 @@ export class FormControl<T = any> extends AbstractControl {
     asyncValidators: Array<AsyncValidatorFn> = []) {
     super(host, pickValidators(validatorsOrOptions), pickAsyncValidators(asyncValidators, validatorsOrOptions));
 
-//    this._setUpdateStrategy(validatorOrOptions);
+    this._setUpdateStrategy(validatorsOrOptions);
 
     this.value = value;
     this.defaultValue = value;

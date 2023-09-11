@@ -12,10 +12,14 @@ export enum FormControlStatus {
   DISABLED = 'DISABLED',
 }
 
+
+export type FormHooks = 'change' | 'blur';
+
+
 export interface AbstractControlOptions {
   validators?: Array<ValidatorFn>;
   asyncValidators?: Array<AsyncValidatorFn>;
-  updateOn?: string;
+  updateOn?: FormHooks;
 }
 
 
@@ -45,7 +49,9 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._value = value;
   }
 
+  // TODO - Rename attribute to _host
   private host: ReactiveControllerHost;
+  private _updateOn?: FormHooks;
 
   protected _asyncValidationSubscription: any;
   protected _hasPendingAsyncValidator: boolean = false;
@@ -63,6 +69,10 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   public readonly status: FormControlStatus = FormControlStatus.VALID;
   public readonly touched: boolean = false;
   public readonly pristine: boolean = true;
+
+  public get updateOn(): FormHooks {
+    return this._updateOn ? this._updateOn : (this.parent ? this.parent.updateOn : 'change');
+  }
 
   public get valid(): boolean {
     return this.status === FormControlStatus.VALID;
@@ -268,6 +278,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
     if (this.parent && !options.onlySelf) {
       this.parent.markAsTouched(options);
+    } else {
+      this.host.requestUpdate();
     }
   }
 
@@ -286,6 +298,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
     if (this.parent && !options.onlySelf) {
       this.parent._updateTouched(options);
+    } else {
+      this.host.requestUpdate();
     }
   }
 
@@ -298,6 +312,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
     if (this.parent && !options.onlySelf) {
       this.parent.markAsDirty(options);
+    } else {
+      this.host.requestUpdate();
     }
   }
 
@@ -316,6 +332,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
     if (this.parent && !options.onlySelf) {
       this.parent._updatePristine(options);
+    } else {
+      this.host.requestUpdate();
     }
   }
 
@@ -447,8 +465,10 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   /** @internal */
-  protected _setUpdateStrategy(options: Array<AsyncValidatorFn> | AbstractControlOptions | null): void {
-
+  protected _setUpdateStrategy(validatorsOrOptions: Array<ValidatorFn> | AbstractControlOptions): void {
+    if (!Array.isArray(validatorsOrOptions) && typeof validatorsOrOptions === 'object') {
+      this._updateOn = validatorsOrOptions.updateOn!;
+    }
   }
 
 }
