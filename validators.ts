@@ -21,7 +21,11 @@ const EMAIL_REGEXP = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+")
 export class Validators {
 
   static required(control: AbstractControl): ValidationErrors | null {
-    return (control.value) ? null : { required: true };
+    const value: any = control.value;
+    if (value === null || ((typeof value === 'string' || Array.isArray(value)) && !value.length)) {
+      return { required: true };
+    }
+    return null;
   }
 
   static email(control: AbstractControl): ValidationErrors | null {
