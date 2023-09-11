@@ -61,7 +61,6 @@ class ConnectDirective extends AsyncDirective {
       this.reconnected();
 
       this.control.modelToView = this.modelToView;
-      this.modelToView(this.control.value);
       this.control.updateValueAndValidity();
     }
 

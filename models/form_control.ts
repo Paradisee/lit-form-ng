@@ -40,10 +40,6 @@ export class FormControl<T = any> extends AbstractControl {
   public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.value = value;
 
-    if (options.emitValue !== false) {
-      this.valueChanges.next(value);
-    }
-
     this.markAsDirty();
     this.updateValueAndValidity(options);
   }
