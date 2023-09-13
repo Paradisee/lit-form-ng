@@ -37,10 +37,13 @@ export class FormControl<T = any> extends AbstractControl {
    * @param options - Options for setting the control's value (optional).
    *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
-  public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean, emitModelToViewChange?: boolean } = {}): void {
     this.value = value;
 
-    this.markAsDirty();
+    if (this.modelToView && options.emitModelToViewChange !== false) {
+      this.modelToView();
+    }
+
     this.updateValueAndValidity(options);
   }
 

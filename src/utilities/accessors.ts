@@ -16,7 +16,7 @@ const inputNumberAccessor = {
   },
   viewToModel: (element: HTMLInputElement, formControl: FormControl) => {
     const value: number | null = element.value === '' ? null : parseFloat(element.value);
-    formControl.setValue(value);
+    formControl.setValue(value, { emitModelToViewChange: false });
   }
 }
 

@@ -36,6 +36,8 @@ class ConnectDirective extends AsyncDirective {
   }
 
   private onInput(event: Event): void {
+    this.control.markAsDirty();
+
     if (this.control.updateOn === 'change') {
       this.viewToModel();
     }
@@ -49,8 +51,8 @@ class ConnectDirective extends AsyncDirective {
     }
   }
 
-  private modelToView(value: any): void {
-    this.accessor.modelToView(this.host, value);
+  private modelToView(): void {
+    this.accessor.modelToView(this.host, this.control.value);
   }
 
   private viewToModel(): void {
@@ -74,7 +76,7 @@ class ConnectDirective extends AsyncDirective {
       this.reconnected();
 
       this.control.modelToView = this.modelToView;
-      this.control.updateValueAndValidity();
+      this.control.setValue(this.control.value);
     }
 
     return noChange;

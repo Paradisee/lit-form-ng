@@ -192,10 +192,6 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = this._allControlsDisabled() ? FormControlStatus.DISABLED : FormControlStatus.VALID;
 
-    if (this.modelToView) {
-      this.modelToView(this.value);
-    }
-
     if (this.enabled) {
       this._cancelExistingSubscription();
 
