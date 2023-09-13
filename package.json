@@ -38,6 +38,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "lit": "^2.8.0"
+    "lit": "^2.8.0",
+    "rxjs": "^7.8.1"
   }
 }
