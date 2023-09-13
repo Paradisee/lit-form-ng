@@ -1,0 +1,43 @@
+{
+  "name": "lit-ng-form",
+  "version": "1.0.0",
+  "description": "A Lit Element library to semplify the use of forms in the Angular way.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "directories": {
+    "example": "./src/examples"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paradisee/lit-form-ng.git"
+  },
+  "keywords": [
+    "lit-element",
+    "lit",
+    "angular",
+    "form",
+    "typescript"
+  ],
+  "author": "Carlo Beccarini",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Paradisee/lit-form-ng/issues"
+  },
+  "homepage": "https://github.com/Paradisee/lit-form-ng#readme",
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "lit": "^2.8.0"
+  }
+}

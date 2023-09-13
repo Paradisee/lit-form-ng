@@ -2,7 +2,7 @@ import { FormControl } from '../models/form_control';
 
 
 const inputTextAccessor = {
-  modelToView: (element: HTMLInputElement | HTMLTextAreaElement, value: string) => {
+  modelToView: (element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, value: string) => {
     element.value = value;
   },
   viewToModel: (element: HTMLInputElement, formControl: FormControl) => {
@@ -12,10 +12,11 @@ const inputTextAccessor = {
 
 const inputNumberAccessor = {
   modelToView: (element: HTMLInputElement, value: number) => {
-    element.value = value.toString();
+    element.value = value === null ? '' : value.toString();
   },
   viewToModel: (element: HTMLInputElement, formControl: FormControl) => {
-    formControl.setValue(element.valueAsNumber || 0);
+    const value: number | null = element.value === '' ? null : parseFloat(element.value);
+    formControl.setValue(value);
   }
 }
 
