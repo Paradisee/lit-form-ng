@@ -47,26 +47,26 @@ export class SignUpForm extends LitElement {
 
       <form @submit="${this.onSignUp}">
         <div>
-          <label>Username</label><br>
+          <label>Username*</label><br>
           <input type="text" ${this.signUpForm.connect('username')}>
           ${this.username?.errors && this.username?.dirty ? html`
             <div>
-              ${this.username?.errors?.required ? html`<div><small>Required field<small></div>` : html``}
-              ${this.username?.errors?.minLength ? html`<div><small>Min length 5<small></div>` : html``}
+              ${this.username?.errors?.required ? html`<div><small>Required field</small></div>` : html``}
+              ${this.username?.errors?.minLength ? html`<div><small>Min length 5</small></div>` : html``}
             </div>
           ` : html``}
         </div>
 
         <div>
-          <label>Password</label><br>
+          <label>Password*</label><br>
           <input type="password" ${this.signUpForm.connect('password')}>
           ${this.password?.errors?.required && this.password?.dirty ? html`
-            <div><small>Required field<small></div>
+            <div><small>Required field</small></div>
           ` : html``}
         </div>
 
         <div>
-          <label>Confirm Password</label><br>
+          <label>Confirm Password*</label><br>
           <input type="password" ${this.signUpForm.connect('confirmPassword')}>
           ${this.confirmPassword?.errors?.required && this.confirmPassword.dirty ? html`<div><small>Required field</small><div>` : html``}
           ${this.signUpForm?.errors?.missmatch ? html`<div><small>Missmatch password field</small></div>` : html``}
