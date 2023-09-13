@@ -53,37 +53,19 @@ export function accessors(element: HTMLElement) {
     if (element.hasAttribute('multiple')) {
       return selectMultipleAccessor;
     }
-    return inputTextAccessor;
-  }
-
-  if (localName === 'textarea') {
-    return inputTextAccessor;
   }
 
   if (localName === 'input') {
     switch (type) {
-      case 'text':
-      case 'color':
-      case 'email':
-      case 'password':
-      case 'tel':
-        return inputTextAccessor;
       case 'number':
+      case 'range':
         return inputNumberAccessor;
       case 'checkbox':
         return inputCheckboxAccessor;
       case 'file':
-        return {};
+        throw new Error(`File accessor isn't supported yet.`);
       case 'radio':
-        return {};
-      case 'range':
-        return {};
-      case 'time':
-        return {};
-      case 'date':
-        return {};
-      default:
-        return {};
+        throw new Error(`Radio accessor isn't supported yet.`);
     }
   }
 
