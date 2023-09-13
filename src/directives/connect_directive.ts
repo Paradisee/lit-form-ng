@@ -36,9 +36,8 @@ class ConnectDirective extends AsyncDirective {
   }
 
   private onInput(event: Event): void {
-    this.control.markAsDirty();
-
     if (this.control.updateOn === 'change') {
+      this.control.markAsDirty();
       this.viewToModel();
     }
   }
@@ -47,16 +46,18 @@ class ConnectDirective extends AsyncDirective {
     this.control.markAsTouched();
 
     if (this.control.updateOn === 'blur') {
+      this.control.markAsDirty();
       this.viewToModel();
     }
   }
 
   private modelToView(): void {
-    this.accessor.modelToView(this.host, this.control.value);
+    this.accessor.setValue(this.host, this.control.value);
   }
 
   private viewToModel(): void {
-    this.accessor.viewToModel(this.host, this.control);
+    const value = this.accessor.getValue(this.host);
+    this.control.setValue(value, { emitModelToViewChange: false });
   }
 
   public render(control: AbstractControl | null, name?: string) {
