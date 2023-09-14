@@ -69,11 +69,6 @@ class ConnectDirective extends AsyncDirective {
       this.control = control;
       this.accessor = accessors(this.host);
 
-      if (this.accessor === null) {
-        // TODO - Throw a valid accessor error
-        throw new Error('Accessor error');
-      }
-
       this.reconnected();
 
       this.control.modelToView = this.modelToView;
