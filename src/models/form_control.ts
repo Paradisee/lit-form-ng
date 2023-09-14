@@ -59,7 +59,8 @@ export class FormControl<T = any> extends AbstractControl {
   }
 
   /**
-   * Resets the control to its default value or to the provided value (if specified).
+   * Resets the form control to its default value or to the provided value (if specified) and
+   * marks it as `pristine` and `untouched`.
    * @param value - The value to set for the control (optional).
    * @param options - Options for resetting the control (optional).
    */

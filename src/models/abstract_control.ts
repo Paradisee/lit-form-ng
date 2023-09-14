@@ -134,9 +134,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    */
   public abstract reset(value?: TValue, options?: Object): void;
 
-  /**
-   * Abstract method (implemented in sub-classes).
-   */
+  /** @internal */
   protected abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
   /** @internal */
