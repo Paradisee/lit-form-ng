@@ -49,8 +49,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this._value = value;
   }
 
-  // TODO - Rename attribute to _host
-  private host: ReactiveControllerHost;
+  private _host: ReactiveControllerHost;
   private _updateOn?: FormHooks;
 
   protected _asyncValidationSubscription: any;
@@ -106,8 +105,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     host: ReactiveControllerHost,
     validators: Array<ValidatorFn>,
     asyncValidators: Array<AsyncValidatorFn>) {
-    this.host = host;
-    this.host.addController(this);
+    this._host = host;
+    this._host.addController(this);
 
     this._assignValidators(validators);
     this._assignAsyncValidators(asyncValidators);
@@ -211,7 +210,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent.updateValueAndValidity(options);
     } else {
-      this.host.requestUpdate();
+      this._host.requestUpdate();
     }
   }
 
@@ -275,7 +274,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent.markAsTouched(options);
     } else {
-      this.host.requestUpdate();
+      this._host.requestUpdate();
     }
   }
 
@@ -295,7 +294,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent._updateTouched(options);
     } else {
-      this.host.requestUpdate();
+      this._host.requestUpdate();
     }
   }
 
@@ -309,7 +308,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent.markAsDirty(options);
     } else {
-      this.host.requestUpdate();
+      this._host.requestUpdate();
     }
   }
 
@@ -329,7 +328,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     if (this.parent && !options.onlySelf) {
       this.parent._updatePristine(options);
     } else {
-      this.host.requestUpdate();
+      this._host.requestUpdate();
     }
   }
 
@@ -359,7 +358,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
       this.parent._updateControlsErrors(emitEvent);
     }
 
-    this.host.requestUpdate();
+    this._host.requestUpdate();
   }
 
   /** @internal */
