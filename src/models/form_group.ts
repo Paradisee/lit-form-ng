@@ -59,8 +59,6 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
       control.setValue(value[key], { onlySelf: true, emitValue: options.emitValue });
     });
 
-    // TODO - Not sure we should markAsDirty when the user uses setValue
-    this.markAsDirty();
     this.updateValueAndValidity(options);
   }
 
