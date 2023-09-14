@@ -57,12 +57,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   protected _validators: Array<ValidatorFn> = [];
   protected _asyncValidators: Array<AsyncValidatorFn> = [];
 
-  public valueChanges: Subject<TValue> = new Subject<TValue>();
-  public statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
-  public disabledChanges: Subject<boolean> = new Subject<boolean>();
-  // TODO - Should't be visible outside
+  /** TODO - Should't be visible outside */
   public modelToView!: Function;
-
+  public readonly valueChanges: Subject<TValue> = new Subject<TValue>();
+  public readonly statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
+  public readonly disabledChanges: Subject<boolean> = new Subject<boolean>();
   public readonly parent: AbstractControl | null = null;
   public readonly errors: ValidationErrors | null = null;
   public readonly status: FormControlStatus = FormControlStatus.VALID;
@@ -152,8 +151,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   public hostUpdated?(): void;
 
   /**
-   * Retrieves a child control from the group by its key.
-   * @param path - The path (property name) of the child control to retrieve.
+   * Retrieves a child control given the control's name or path.
+   * @param path - The path (property name) of the child control's name to retrieve.
    * @returns The child control associated with the specified key, or null if not found.
    */
   public get(path: string | Array<string>): AbstractControl | null {
@@ -186,6 +185,11 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.updateValueAndValidity(options);
   }
 
+  /**
+   * Updates the value and validity status of the control.
+   * By default, it also updates the value and validity of its ancestors.
+   * @param options - Options for updating the control's value and validating (optional).
+   */
   public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = this._allControlsDisabled() ? FormControlStatus.DISABLED : FormControlStatus.VALID;
 
