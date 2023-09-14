@@ -135,7 +135,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   public abstract reset(value?: TValue, options?: Object): void;
 
   /**
-   * Returns an array of controls. Abstract method (implemented in sub-classes).
+   * Abstract method (implemented in sub-classes).
    */
   protected abstract _forEachChild(cb: (control: AbstractControl) => void): void;
 
@@ -155,7 +155,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   /**
    * Retrieves a child control from the group by its key.
-   * @param path - The key (property name) of the child control to retrieve.
+   * @param path - The path (property name) of the child control to retrieve.
    * @returns The child control associated with the specified key, or null if not found.
    */
   public get(path: string | Array<string>): AbstractControl | null {
@@ -265,8 +265,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   /**
-   * Marks the control as `touched`. A control is touched by focus and
-   * blur events that do not change the value.
+   * Marks the control as `touched`.
+   * A control is touched by focus and blur events that do not change the value.
    */
   public markAsTouched(options: { onlySelf?: boolean } = {}): void {
     (this as { touched: boolean }).touched = true;
@@ -280,7 +280,6 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   /**
    * Marks the control as `untouched`.
-   *
    * If the control has any children, also marks all children as `untouched`
    * and recalculates the `touched` status of all parent controls.
    */
@@ -299,8 +298,8 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   /**
-   * Marks the control as `dirty`. A control becomes dirty when
-   * the control's value is changed through the UI.
+   * Marks the control as `dirty`.
+   * A control becomes dirty when the control's value is changed through the UI.
    */
   public markAsDirty(options: { onlySelf?: boolean } = {}): void {
     (this as { pristine: boolean }).pristine = false;
@@ -314,7 +313,6 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   /**
    * Marks the control as `pristine`.
-   *
    * If the control has any children, marks all children as `pristine`,
    * and recalculates the `pristine` status of all parent controls.
    */
@@ -332,7 +330,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }
   }
 
-  // TODO
+  /** TODO */
   public markAsPending(): void {
 
   }

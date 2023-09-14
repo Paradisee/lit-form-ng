@@ -32,10 +32,12 @@ export class FormControl<T = any> extends AbstractControl {
   }
 
   /**
-   * Sets the control's value to the provided value and updates its validity.
-   * @param value - The value to set for the control.
-   * @param options - Options for setting the control's value (optional).
-   *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
+   * Sets a new value for the form control.
+   * @param value - The new value for the control.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   *   - `onlySelf`: If `true`, each change only affects this control, and not its parent (default: false).
+   *   - `emitValue`: If `true`, emit `valueChanges` and `statusChanges` (default: true).
+   *   - `emitModelToViewChange`: If `true`, updates the view (default: true).
    */
   public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean, emitModelToViewChange?: boolean } = {}): void {
     this.value = value;
@@ -48,10 +50,9 @@ export class FormControl<T = any> extends AbstractControl {
   }
 
   /**
-   * Patches the control's value with the provided value (if specified).
-   * @param value - The value to patch the control with (optional).
+   * Patches the control's value with the provided value.
+   * @param value - The value to patch the control with.
    * @param options - Options for patching the control (optional).
-   *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
   public override patchValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.setValue(value, options);
@@ -61,7 +62,6 @@ export class FormControl<T = any> extends AbstractControl {
    * Resets the control to its default value or to the provided value (if specified).
    * @param value - The value to set for the control (optional).
    * @param options - Options for resetting the control (optional).
-   *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
   public override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     this.markAsPristine();
@@ -69,12 +69,7 @@ export class FormControl<T = any> extends AbstractControl {
     this.setValue(value, options);
   }
 
-  /**
-   * @internal
-   * Returns an array containing the current control itself.
-   * This method is used internally to include the control itself when iterating through child controls.
-   * @returns An array containing the control itself.
-   */
+  /** @internal */
   protected override _forEachChild(cb: (control: AbstractControl) => void): void {
 
   }

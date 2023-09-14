@@ -66,7 +66,6 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * Patches each control within the group with the values provided in the `value` object (if present).
    * @param value - An object containing values to set for specific controls (optional).
    * @param options - Options for patching controls (optional).
-   *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
   public override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.keys(value).forEach((key: keyof T) => {
@@ -78,7 +77,6 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * Resets each control within the group to its default value or to the provided values (if specified).
    * @param value - An object containing values to set for specific controls (optional).
    * @param options - Options for resetting controls (optional).
-   *   - `emitValue`: If `true`, emit value changes; otherwise, suppress value change events (default: true).
    */
   public override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
     Object.entries(this.controls).forEach(([name, control]) => {
@@ -88,12 +86,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     this.markAsUntouched();
   }
 
-  /**
-   * @internal
-   * Returns an array of child controls within the group.
-   * This method is used internally to iterate through the child controls.
-   * @returns An array of child controls.
-   */
+  /** @internal */
   protected override _forEachChild(cb: (control: AbstractControl) => void): void {
     Object.values(this.controls).forEach((control: AbstractControl) => cb(control));
   }
