@@ -5,20 +5,20 @@
 
 ## Introduction:
 
-For us developers, forms can be a very tedious task of our work. Even the simplest application can quickly become overwhelming, causing us to lose control over the communication flow between states and events.
-If you are familiar with Angular forms, then you'll be just fine using this library."
+Working with forms can be a very tedious task of our work. Even the simplest application can quickly become overwhelming, causing us to lose control over the communication flow between states and events. If you are familiar with Angular forms, then you'll be just fine.
 
 
 ## Features
 
 - **Two Way Bindings**
 - **Async Validators** and **Custom Async Validators**
-- **Custom Accessors**
+
 
 ## Future implementations
 
 - **FormArray**
 - **FormBuilder**
+- **Custom Accessors**
 
 
 ## Properties
