@@ -108,22 +108,27 @@ export class MyForm extends LitElement {
     });
 
     private onSubmit(event: Event): void {
+        event.preventDefault();
+        if (this.form.invalid) return;
         console.log(this.form.value);
     }
 
     protected render(): TemplateResult {
-        <form @submit="${this.onSubmit}">
-            <div>
-                <label>Name:</label>
-                <input type="text" ${this.form.connect('name')}>
-                ${this.form.get('name')?.errors?.required ? html`<small>Required field</small>` : html``}
-            </div>
-            <div>
-                <label>Age:</label>
-                <input type="number" ${this.form.connect('age')}>
-                ${this.form.get('age')?.errors?.required ? html`<small>Required field</small>` : html``}
-            </div>
-        </form>
+        return html`
+            <form @submit="${this.onSubmit}">
+                <div>
+                    <label>Name:</label>
+                    <input type="text" ${this.form.connect('name')}>
+                    ${this.form.get('name')?.errors?.required ? html`<small>Required field</small>` : html``}
+                </div>
+                <div>
+                    <label>Age:</label>
+                    <input type="number" ${this.form.connect('age')}>
+                    ${this.form.get('age')?.errors?.required ? html`<small>Required field</small>` : html``}
+                </div>
+                <button type="submit" ?disabled="${this.form.invalid}">SUBMIT</button>
+            </form>
+        `;
     }
 
 }
