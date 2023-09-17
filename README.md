@@ -16,14 +16,13 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 
 ## Future implementations
 
-- **FormArray**
 - **FormBuilder**
 - **Custom Accessors**
 
 
 ## Properties
 
-> Since each control (FormGroup / FormControl) extend an AbstractControl, they share the same properties.
+> Since each control (FormGroup | FormArray | FormControl) extend an AbstractControl, they share the same properties.
 
 | Attribute | Type | Description |
 |:----------|:----:|:------------|
@@ -54,6 +53,14 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 | controls | any | A collection of child controls. The key for each child is the name under which it is registered. |
 
 
+## Properties (FormArray)
+
+| Attribute | Type | Description |
+|:----------|:----:|:------------|
+| controls | Array<any> | An array of child controls. |
+| length | number | Length of the control array. |
+
+
 ## Properties (FormControl)
 
 | Attribute | Type | Description |
@@ -71,6 +78,7 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 |  | **FormControl**: For a simple FormControl, the raw value is equivalent to the value. |
 | patchValue(value, options) | **FormGroup**: Patches the value of the FormGroup. It accepts an object with control names as keys, and does its best to match the values to the correct controls in the group. |
 |  | **FormControl**: Patches the value of a control. |
+| setParent(control) | Sets the parent of the control. |
 | disable(options) | Disables the control. This means the control is exempt from validation checks and excluded from the aggregate value of any parent. Its status is DISABLED. |
 | enable(options) | Enables the control. This means the control is included in validation checks and the aggregate value of its parent. Its status recalculates based on its value and its validators. |
 | reset(value, options) | **FormGroup**: Resets the FormGroup, marks all descendants pristine and untouched and sets the value of all descendants to their default values, or null if no defaults were provided. |
@@ -81,6 +89,7 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 | setAsyncValidators(validators) | Sets the asynchronous validators that are active on this control. Calling this overwrites any existing asynchronous validators.  |
 | addAsyncValidators(validators) | Add a synchronous validator or validators to this control, without affecting other validators. |
 | setErrors(errors, options) | Sets errors on a form control when running validations manually, rather than automatically. |
+| get(path) | Retrieves a child control given the control's name or path. |
 | markAllAsTouched() | Marks the control and all its descendant controls as touched. |
 | markAsTouched(options) | Marks the control as touched. A control is touched by focus and blur events that do not change the value. |
 | markAsUntouched(options) | Marks the control as untouched.  |
@@ -89,11 +98,15 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 | markAsPending() | **TODO** Marks the control as pending. |
 
 
-## Methods (FormGroup)
+## Methods (FormArray)
 
 | Method | Description |
 |:----------|:------------|
-| get(path) | Retrieves a child control given the control's name or path. |
+| at(index) | Get the AbstractControl at the given index in the array. |
+| push(control, options) | Insert a new AbstractControl at the end of the array. |
+| insert(index, control, options) | Insert a new AbstractControl at the given index in the array. |
+| removeAt(index, options) | Remove the control at the given index in the array. |
+| setControl(index, control, options) | **TODO** |
 
 
 ## How to use

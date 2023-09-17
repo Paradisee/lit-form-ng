@@ -50,6 +50,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   private _host: ReactiveControllerHost;
+  private _parent: AbstractControl | null = null;
   private _updateOn?: FormHooks;
 
   protected _asyncValidationSubscription: any;
@@ -62,11 +63,14 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   public readonly valueChanges: Subject<TValue> = new Subject<TValue>();
   public readonly statusChanges: Subject<FormControlStatus> = new Subject<FormControlStatus>();
   public readonly disabledChanges: Subject<boolean> = new Subject<boolean>();
-  public readonly parent: AbstractControl | null = null;
   public readonly errors: ValidationErrors | null = null;
   public readonly status: FormControlStatus = FormControlStatus.VALID;
   public readonly touched: boolean = false;
   public readonly pristine: boolean = true;
+
+  public get parent(): AbstractControl | null {
+    return this._parent;
+  }
 
   public get updateOn(): FormHooks {
     return this._updateOn ? this._updateOn : (this.parent ? this.parent.updateOn : 'change');
@@ -150,14 +154,17 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
 
   public hostUpdated?(): void;
 
+  public setParent(parent: AbstractControl): void {
+    this._parent = parent;
+  }
+
   /**
    * Retrieves a child control given the control's name or path.
    * @param path - The path (property name) of the child control's name to retrieve.
    * @returns The child control associated with the specified key, or null if not found.
    */
   public get(path: string | Array<string>): AbstractControl | null {
-    const paths: Array<string> = (path as string).split('.');
-
+    const paths: Array<string> = Array.isArray(path) ? path : path.split('.');
     return paths.reduce((control: AbstractControl | null, name: string) => {
       return control?._find(name) || null;
     }, this);
@@ -455,7 +462,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
   }
 
   /** @internal */
-  protected _find(name: string): AbstractControl | null {
+  protected _find(name: string | number): AbstractControl | null {
     return null;
   }
 
