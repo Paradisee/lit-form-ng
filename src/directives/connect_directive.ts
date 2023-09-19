@@ -61,11 +61,15 @@ class ConnectDirective extends AsyncDirective {
   }
 
   public render(control: AbstractControl | null, name?: string) {
-    if (!this.control) {
-      if (control === null) {
-        throw new Error(`Couldn't find a form control with name: "${name}"`);
-      }
+    if (control === null) {
+      throw new Error(`Couldn't find a form control with name: "${name}"`);
+    }
 
+    /**
+     * This condition is crucial to ensure that, during each host rendering phase,
+     * the current directive is consistently and accurately associated with the appropriate control.
+     */
+    if (this.control !== control) {
       this.control = control;
       this.accessor = accessors(this.host);
 
