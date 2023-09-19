@@ -80,13 +80,10 @@ export class FormArray<T extends AbstractControl<any> = any> extends AbstractCon
     this.updateValueAndValidity({ emitValue: options.emitValue });
   }
 
-  /** TODO */
   public insert(index: number, control: T, options: { emitValue?: boolean } = {}): void {
-    /*
     this.controls.splice(index, 0, control);
     this._registerControl(control);
     this.updateValueAndValidity({ emitValue: options.emitValue });
-    */
   }
 
   public removeAt(index: number, options: { emitValue?: boolean } = {}): void {
