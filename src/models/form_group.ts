@@ -48,7 +48,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     }, {});
   }
 
-  public override setValue(value: Record<keyof T, any>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override setValue(value: Record<keyof T, any>, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     const assertAllValuesPresent: boolean = Object.keys(this.controls).every(key => key in value);
 
     if (!assertAllValuesPresent) {
@@ -56,7 +56,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
     }
 
     Object.entries(this.controls).forEach(([key, control]) => {
-      control.setValue(value[key], { onlySelf: true, emitValue: options.emitValue });
+      control.setValue(value[key], { onlySelf: true, emitEvent: options.emitEvent });
     });
 
     this.updateValueAndValidity(options);
@@ -67,7 +67,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * @param value - An object containing values to set for specific controls (optional).
    * @param options - Options for patching controls (optional).
    */
-  public override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override patchValue(value: Partial<Record<keyof T, any>>, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     Object.keys(value).forEach((key: keyof T) => {
       this.controls[key]?.setValue(value[key], options);
     });
@@ -78,7 +78,7 @@ export class FormGroup<T extends Record<string, AbstractControl> = any> extends 
    * @param value - An object containing values to set for specific controls (optional).
    * @param options - Options for resetting controls (optional).
    */
-  public override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override reset(value: Partial<Record<keyof T, any>> = {}, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     Object.entries(this.controls).forEach(([name, control]) => {
       control.reset(value[name], options);
     });

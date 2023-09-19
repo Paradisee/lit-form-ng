@@ -36,10 +36,10 @@ export class FormControl<T = any> extends AbstractControl {
    * @param value - The new value for the control.
    * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
    *   - `onlySelf`: If `true`, each change only affects this control, and not its parent (default: false).
-   *   - `emitValue`: If `true`, emit `valueChanges` and `statusChanges` (default: true).
+   *   - `emitEvent`: If `true`, emit `valueChanges` and `statusChanges` (default: true).
    *   - `emitModelToViewChange`: If `true`, updates the view (default: true).
    */
-  public override setValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean, emitModelToViewChange?: boolean } = {}): void {
+  public override setValue(value: T, options: { onlySelf?: boolean, emitEvent?: boolean, emitModelToViewChange?: boolean } = {}): void {
     this.value = value;
 
     if (this.modelToView && options.emitModelToViewChange !== false) {
@@ -54,7 +54,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param value - The value to patch the control with.
    * @param options - Options for patching the control (optional).
    */
-  public override patchValue(value: T, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override patchValue(value: T, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     this.setValue(value, options);
   }
 
@@ -64,7 +64,7 @@ export class FormControl<T = any> extends AbstractControl {
    * @param value - The value to set for the control (optional).
    * @param options - Options for resetting the control (optional).
    */
-  public override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override reset(value: T = this.defaultValue, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     this.markAsPristine();
     this.markAsUntouched();
     this.setValue(value, options);

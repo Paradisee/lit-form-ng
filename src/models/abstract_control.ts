@@ -170,7 +170,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     }, this);
   }
 
-  public disable(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public disable(options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.DISABLED;
 
     this._forEachChild((control: AbstractControl) => {
@@ -181,7 +181,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
     this.updateValueAndValidity(options);
   }
 
-  public enable(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public enable(options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = FormControlStatus.VALID;
 
     this._forEachChild((control: AbstractControl) => {
@@ -197,7 +197,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
    * By default, it also updates the value and validity of its ancestors.
    * @param options - Options for updating the control's value and validating (optional).
    */
-  public updateValueAndValidity(options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public updateValueAndValidity(options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     (this as { status: FormControlStatus }).status = this._allControlsDisabled() ? FormControlStatus.DISABLED : FormControlStatus.VALID;
 
     if (this.enabled) {
@@ -211,7 +211,7 @@ export abstract class AbstractControl<TValue = any, TRawValue extends TValue = T
       }
     }
 
-    if (options.emitValue !== false) {
+    if (options.emitEvent !== false) {
       this.statusChanges.next(this.status);
       this.valueChanges.next(this.value);
     }

@@ -44,25 +44,25 @@ export class FormArray<T extends AbstractControl<any> = any> extends AbstractCon
     return this.controls.map((control: AbstractControl) => control.getRawValue());
   }
 
-  public override setValue(value: Array<T>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override setValue(value: Array<T>, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     if (value.length !== this.controls.length) {
       throw new Error('You must provide every control to use the setValue method.');
     }
 
     value.forEach((newValue: any, index: number) => {
-      this.at(index).setValue(newValue, { onlySelf: true, emitValue: options.emitValue });
+      this.at(index).setValue(newValue, { onlySelf: true, emitEvent: options.emitEvent });
     });
 
     this.updateValueAndValidity(options);
   }
 
-  public override patchValue(value: Array<T>, options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override patchValue(value: Array<T>, options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     value.forEach((newValue: any, index: number) => {
       this.at(index)?.setValue(newValue, options);
     });
   }
 
-  public override reset(value: Array<T> = [], options: { onlySelf?: boolean, emitValue?: boolean } = {}): void {
+  public override reset(value: Array<T> = [], options: { onlySelf?: boolean, emitEvent?: boolean } = {}): void {
     this.controls.forEach((control: AbstractControl, index: number) => {
       control.reset(value[index], options);
     });
@@ -74,21 +74,21 @@ export class FormArray<T extends AbstractControl<any> = any> extends AbstractCon
     return this.controls[index];
   }
 
-  public push(control: T, options: { emitValue?: boolean } = {}): void {
+  public push(control: T, options: { emitEvent?: boolean } = {}): void {
     this.controls.push(control);
     this._registerControl(control);
-    this.updateValueAndValidity({ emitValue: options.emitValue });
+    this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
-  public insert(index: number, control: T, options: { emitValue?: boolean } = {}): void {
+  public insert(index: number, control: T, options: { emitEvent?: boolean } = {}): void {
     this.controls.splice(index, 0, control);
     this._registerControl(control);
-    this.updateValueAndValidity({ emitValue: options.emitValue });
+    this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
-  public removeAt(index: number, options: { emitValue?: boolean } = {}): void {
+  public removeAt(index: number, options: { emitEvent?: boolean } = {}): void {
     this.controls.splice(index, 1);
-    this.updateValueAndValidity({ emitValue: options.emitValue });
+    this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
   /** TODO */
@@ -96,10 +96,10 @@ export class FormArray<T extends AbstractControl<any> = any> extends AbstractCon
 
   }
 
-  public clear(options: { emitValue?: boolean } = {}): void {
+  public clear(options: { emitEvent?: boolean } = {}): void {
     if (!this.length) return;
     this.controls.splice(0);
-    this.updateValueAndValidity({ emitValue: options.emitValue });
+    this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
   /** @internal */
