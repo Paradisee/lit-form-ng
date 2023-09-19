@@ -3,13 +3,14 @@
 > A Lit Element library to semplify the use of forms in the Angular way.
 
 
-## Introduction:
+## Introduction
 
 Working with forms can be a very tedious task of our work. Even the simplest application can quickly become overwhelming, causing us to lose control over the communication flow between states and events. If you are familiar with Angular forms, then you'll be just fine.
 
 
 ## Features
 
+- **FormArray** | **FormGroup** | **FormControl**
 - **Two Way Bindings**
 - **Async Validators** and **Custom Async Validators**
 
@@ -20,9 +21,11 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 - **Custom Accessors**
 
 
-## Properties
+# Note
+> Since each control (FormGroup | FormArray | FormControl) extend an AbstractControl, they share the same properties and methods.
 
-> Since each control (FormGroup | FormArray | FormControl) extend an AbstractControl, they share the same properties.
+
+## Properties
 
 | Attribute | Type | Description |
 |:----------|:----:|:------------|
@@ -106,7 +109,8 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 | push(control, options) | Insert a new AbstractControl at the end of the array. |
 | insert(index, control, options) | Insert a new AbstractControl at the given index in the array. |
 | removeAt(index, options) | Remove the control at the given index in the array. |
-| setControl(index, control, options) | **TODO** |
+| setControl(index, control, options) | Replace an existing control. |
+| clear(index, control, options) | Remove all controls in the FormArray. |
 
 
 ## How to use

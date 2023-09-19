@@ -70,32 +70,63 @@ export class FormArray<T extends AbstractControl<any> = any> extends AbstractCon
     this.markAsUntouched(options);
   }
 
+  /**
+   * Gets the AbstractControl at the given index in the array.
+   * @param index - The index of the AbstractControl.
+   * @returns The child control.
+   */
   public at(index: number): AbstractControl {
     return this.controls[index];
   }
 
+  /**
+   * Inserts a new AbstractControl at the end of the array.
+   * @param control - The AbstractConrol to push into the array.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   */
   public push(control: T, options: { emitEvent?: boolean } = {}): void {
     this.controls.push(control);
     this._registerControl(control);
     this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
+  /**
+   * Inserts a new AbstractControl at the given index in the array.
+   * @param index - The index where the control should be insert.
+   * @param control - The AbstractConrol to insert into the array.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   */
   public insert(index: number, control: T, options: { emitEvent?: boolean } = {}): void {
     this.controls.splice(index, 0, control);
     this._registerControl(control);
     this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
+  /**
+   * Removes the control at the given index in the array.
+   * @param index - The index of the control to remove.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   */
   public removeAt(index: number, options: { emitEvent?: boolean } = {}): void {
     this.controls.splice(index, 1);
     this.updateValueAndValidity({ emitEvent: options.emitEvent });
   }
 
+  /**
+   * Replaces an existing control.
+   * @param index - The index of the control to replace.
+   * @param control - The AbstractControl that will replace the existing one.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   */
   public setControl(index: number, control: T, options: { emitEvent?: boolean } = {}): void {
     this.controls.splice(index, 1);
     this.insert(index, control, options);
   }
 
+  /**
+   * Removes all controls in the FormArray.
+   * @param options - Options that determine how the control propagates changes and emits events when the value changes (optional).
+   */
   public clear(options: { emitEvent?: boolean } = {}): void {
     if (!this.length) return;
     this.controls.splice(0);
