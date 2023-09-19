@@ -31,6 +31,7 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 |:----------|:----:|:------------|
 | parent | AbstractControl \| null | _**readonly**_ The parent control. |
 | value | any | _**readonly**_ **FormGroup** An object with a key-value pair for each member control (if not disabled) of the group. |
+|  | Array<any> | _**readonly**_ **FormArray** An array of values for each member control (if not disabled). |
 |  | any | _**readonly**_ **FormControl** The current value. |
 | valueChanges | Observable<any> | _**readonly**_ An observable that emits an event every time the value of the control changes  |
 | statusChanges | Observable<FormControlStatus> | _**readonly**_ An observable that emits an event every time the status of the control changes |
@@ -76,15 +77,19 @@ Working with forms can be a very tedious task of our work. Even the simplest app
 | Method | Description |
 |:-------|:------------|
 | setValue(value, options) | **FormGroup**: Sets the value of the FormGroup. It accepts an object that matches the structure of the group, with control names as keys. |
+|  | **FormArray**: Sets the value of the FormArray. It accepts an array that matches the structure of the control. |
 |  | **FormControl**: Sets a new value for the form control. |
 | getRawValue() | **FormGroup**: The aggregate value of the FormGroup, including any disabled controls. |
+|  | **FormArray**: The aggregate value of the array, including any disabled controls. |
 |  | **FormControl**: For a simple FormControl, the raw value is equivalent to the value. |
-| patchValue(value, options) | **FormGroup**: Patches the value of the FormGroup. It accepts an object with control names as keys, and does its best to match the values to the correct controls in the group. |
+| patchValue(value, options) | **FormGroup**: Patches the value of the FormGroup. It accepts an object with control names as keys. |
+|  | **FormArray**: Patches the value of the FormArray. It accepts an array that matches the structure of the control. |
 |  | **FormControl**: Patches the value of a control. |
 | setParent(control) | Sets the parent of the control. |
 | disable(options) | Disables the control. This means the control is exempt from validation checks and excluded from the aggregate value of any parent. Its status is DISABLED. |
 | enable(options) | Enables the control. This means the control is included in validation checks and the aggregate value of its parent. Its status recalculates based on its value and its validators. |
-| reset(value, options) | **FormGroup**: Resets the FormGroup, marks all descendants pristine and untouched and sets the value of all descendants to their default values, or null if no defaults were provided. |
+| reset(value, options) | **FormGroup**: Resets the FormGroup, marks all descendants as pristine and untouched and sets the value of all descendants to their default values, or null if no defaults were provided. |
+|  | **FormArray**: Resets the FormArray, marks all descendants as pristine and untouched and sets the value of all descendants to their default values, or null if no defaults were provided. |
 |  | **FormControl**: Resets the form control, marking it pristine and untouched, and resetting the value. The new value will be the provided value (if passed), null, or the initial value if nonNullable was set in the constructor via FormControlOptions. |
 | updateValueAndValidity() | Updates the value and validity status of the control. By default, it also updates the value and validity of its ancestors. |
 | setValidators(validators) | Sets the synchronous validators that are active on this control. Calling this overwrites any existing synchronous validators. |
